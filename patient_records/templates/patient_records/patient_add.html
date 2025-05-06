@@ -1,0 +1,339 @@
+{% extends 'index.html' %}
+{% load static %}
+
+{% block breadcrumb %}
+<li class="breadcrumb-item"><a href="{% url 'patient_records:patient_list' %}">患者管理</a></li>
+<li class="breadcrumb-item active" aria-current="page">新增患者</li>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- 页面标题 -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="page-title">新增患者</h2>
+    </div>
+    
+    <!-- Django消息显示 -->
+    {% if messages %}
+    <div class="messages mb-4">
+        {% for message in messages %}
+        <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}{{ message.tags }}{% endif %} alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+    
+    <div class="row">
+        <div class="col-md-8">
+            <!-- 患者基本信息表单卡片 -->
+            <div class="card mb-4 shadow-sm">
+                <div class="card-header bg-gradient d-flex justify-content-between align-items-center">
+                    <span><i class="bi bi-person-plus me-2"></i> 患者基本信息</span>
+                </div>
+                <div class="card-body">
+                    <form method="post" enctype="multipart/form-data" id="patientAddForm">
+                        {% csrf_token %}
+                        
+                        <!-- 患者基本信息 -->
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label for="name" class="form-label fw-semibold required">姓名</label>
+                                <input type="text" class="form-control form-control-sm" id="name" name="name" maxlength="30" placeholder="姓名长度不超过30个字符" required>
+                                <div class="invalid-feedback" id="name_feedback">姓名长度必须在1-30个字符之间</div>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="birth_date" class="form-label fw-semibold required">出生日期</label>
+                                <input type="date" class="form-control form-control-sm" id="birth_date" name="birth_date" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="id_card" class="form-label fw-semibold required">身份证号</label>
+                                <input type="text" class="form-control form-control-sm" id="id_card" name="id_card" placeholder="请输入18位身份证号码" minlength="18" maxlength="18" pattern="[0-9Xx]{18}" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="phone" class="form-label fw-semibold required">联系电话</label>
+                                <input type="tel" class="form-control form-control-sm" id="phone" name="phone" placeholder="请输入11位手机号码" maxlength="11" pattern="[0-9]{11}" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="emergency_contact" class="form-label fw-semibold required">紧急联系人</label>
+                                <input type="text" class="form-control form-control-sm" id="emergency_contact" name="emergency_contact" maxlength="30" placeholder="联系人长度不超过30个字符" required>
+                                <div class="invalid-feedback" id="emergency_contact_feedback">紧急联系人长度必须在1-30个字符之间</div>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="emergency_phone" class="form-label fw-semibold required">紧急联系电话</label>
+                                <input type="tel" class="form-control form-control-sm" id="emergency_phone" name="emergency_phone" placeholder="请输入11位手机号码" maxlength="11" pattern="[0-9]{11}" required>
+                            </div>
+                        </div>
+
+                        <!-- 临床特征文件上传 -->
+                        <div class="mt-4 pt-3 border-top">
+                            <h5 class="card-title mb-3">
+                                <i class="bi bi-file-earmark-medical me-2 text-primary"></i>临床特征数据
+                            </h5>
+                            <div class="file-upload-container p-3 bg-light rounded">
+                                <label for="clinical_file" class="form-label fw-semibold required">上传临床特征文件</label>
+                                <div class="input-group mb-2">
+                                    <input class="form-control" type="file" id="clinical_file" name="clinical_file" accept=".txt,.csv" required>
+                                    <button class="btn btn-outline-secondary" type="button" data-bs-toggle="modal" data-bs-target="#fileTemplateModal">
+                                        <i class="bi bi-question-circle"></i>
+                                    </button>
+                                </div>
+                                <div class="form-text">
+                                    <small>支持 .txt 或 .csv 格式，需包含性别、体温和基础疾病等信息。</small>
+                                </div>
+                                <div class="d-flex align-items-center mt-2">
+                                    <div class="progress w-100 me-2" style="display: none;" id="uploadProgress">
+                                        <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" style="width: 0%"></div>
+                                    </div>
+                                    <span id="uploadStatus" class="text-muted small"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 提交按钮 -->
+                        <div class="d-flex justify-content-end mt-4">
+                            <button type="button" class="btn btn-outline-secondary btn-sm me-2" id="cancelButton">取消</button>
+                            <button type="submit" class="btn btn-primary btn-sm">
+                                <i class="bi bi-save me-1"></i> 保存
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4">
+            <!-- 提示信息卡片 -->
+            <div class="card mb-4 shadow-sm">
+                <div class="card-header bg-info bg-gradient text-white d-flex justify-content-between align-items-center">
+                    <span><i class="bi bi-info-circle me-2"></i> 填写说明</span>
+                </div>
+                <div class="card-body">
+                    <h6 class="card-subtitle mb-3 text-muted">如何填写病历信息</h6>
+                    <ul class="small text-muted list-unstyled">
+                        <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i> 带 <span class="text-danger">*</span> 的字段为必填项</li>
+                        <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i> 性别、体温和基础疾病将从上传的临床特征文件中提取</li>
+                        <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i> 请确保临床特征文件格式正确</li>
+                        <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i> 身份证号需为18位有效数字</li>
+                        <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i> 联系电话应为有效的手机号或固定电话</li>
+                    </ul>
+                    
+                    <div class="alert alert-warning mt-3 small">
+                        <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                        <strong>注意：</strong> 请确保上传的临床特征文件包含至少以下字段：性别(Gender)、体温(Body temperature)和基础疾病(Underlying diseases)。
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 文件模板示例模态框 -->
+<div class="modal fade" id="fileTemplateModal" tabindex="-1" aria-labelledby="fileTemplateModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-light">
+                <h5 class="modal-title" id="fileTemplateModalLabel">临床特征文件格式示例</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>临床特征文件应该包含以下格式的数据（制表符或逗号分隔）：</p>
+                <div class="bg-light p-3 rounded border">
+                    <pre class="mb-0" style="max-height: 300px; overflow-y: auto;"><code>Patient  Age  Gender  Body temperature  Underlying diseases  MCHC  MCH  MCV ...
+Abbreviation  N/A  F/M  °C  Udis  MCHC  MCH  MCV ...
+Normal range  N/A  F/M  ≤37.2°C  No  316-354 g/L  27-34 pg  82-100 fl ...
+Patient 324  34  Female  38.3  No underlying disease  316  25.1  79.4 ...</code></pre>
+                </div>
+                <div class="alert alert-info mt-3 mb-0 small">
+                    <i class="bi bi-info-circle-fill me-2"></i>
+                    必须包含<strong>性别(Gender)</strong>、<strong>体温(Body temperature)</strong>和<strong>基础疾病(Underlying diseases)</strong>这三个字段。
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">关闭</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 通知提示 -->
+<div class="notification success" style="display: none;" id="successNotification">
+    <i class="bi bi-check-circle"></i>
+    <div>
+        <h6 class="mb-0">操作成功</h6>
+        <p class="mb-0 small">新病历已创建成功</p>
+    </div>
+    <button class="close-btn"><i class="bi bi-x"></i></button>
+</div>
+
+<div class="notification error" style="display: none;" id="errorNotification">
+    <i class="bi bi-exclamation-circle"></i>
+    <div>
+        <h6 class="mb-0">操作失败</h6>
+        <p class="mb-0 small" id="errorMessage">保存过程中发生错误</p>
+    </div>
+    <button class="close-btn"><i class="bi bi-x"></i></button>
+</div>
+
+<style>
+.bg-gradient {
+    background: linear-gradient(to right, #f8f9fa, #e9ecef);
+}
+.card {
+    border-radius: 0.5rem;
+    border: none;
+}
+.card-header {
+    border-radius: 0.5rem 0.5rem 0 0 !important;
+}
+.file-upload-container {
+    border: 1px dashed #dee2e6;
+    transition: all 0.3s;
+}
+.file-upload-container:hover {
+    border-color: #6c757d;
+}
+.form-label.required:after {
+    content: ' *';
+    color: red;
+}
+.is-invalid {
+    border-color: #dc3545;
+}
+.invalid-feedback {
+    display: none;
+    color: #dc3545;
+    font-size: 12px;
+    margin-top: 0.25rem;
+}
+/* 修改placeholder文本颜色 */
+::placeholder {
+    color: #c0c0c0 !important;
+    opacity: 0.7;
+}
+::-webkit-input-placeholder {
+    color: #c0c0c0 !important;
+    opacity: 0.7;
+}
+::-moz-placeholder {
+    color: #c0c0c0 !important;
+    opacity: 0.7;
+}
+:-ms-input-placeholder {
+    color: #c0c0c0 !important;
+    opacity: 0.7;
+}
+::-ms-input-placeholder {
+    color: #c0c0c0 !important;
+    opacity: 0.7;
+}
+</style>
+
+{% block page_scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const form = document.getElementById('patientAddForm');
+        const fileInput = document.getElementById('clinical_file');
+        const progressBar = document.querySelector('.progress-bar');
+        const progressContainer = document.getElementById('uploadProgress');
+        const uploadStatus = document.getElementById('uploadStatus');
+        
+        // 监听模态框隐藏事件，确保背景遮罩被完全清除
+        const fileTemplateModal = document.getElementById('fileTemplateModal');
+        if (fileTemplateModal) {
+            fileTemplateModal.addEventListener('hidden.bs.modal', function () {
+                // 移除可能残留的模态框背景
+                const modalBackdrops = document.querySelectorAll('.modal-backdrop');
+                modalBackdrops.forEach(backdrop => {
+                    backdrop.remove();
+                });
+                
+                // 移除body上的modal-open类
+                document.body.classList.remove('modal-open');
+                document.body.style.overflow = '';
+                document.body.style.paddingRight = '';
+            });
+        }
+        
+        // 文件上传处理
+        fileInput.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const fileName = file.name;
+                const fileSize = (file.size / 1024).toFixed(2);
+                uploadStatus.textContent = `已选择: ${fileName} (${fileSize} KB)`;
+                uploadStatus.classList.add('text-success');
+            } else {
+                uploadStatus.textContent = '';
+                uploadStatus.classList.remove('text-success');
+            }
+        });
+        
+        // 表单验证
+        form.addEventListener('submit', function(e) {
+            let isValid = true;
+            
+            // 验证姓名长度
+            const name = document.getElementById('name').value;
+            if (name.length > 30 || name.length === 0) {
+                document.getElementById('name').classList.add('is-invalid');
+                document.getElementById('name_feedback').style.display = 'block';
+                isValid = false;
+            } else {
+                document.getElementById('name').classList.remove('is-invalid');
+                document.getElementById('name_feedback').style.display = 'none';
+            }
+            
+            // 验证紧急联系人长度
+            const emergencyContact = document.getElementById('emergency_contact').value;
+            if (emergencyContact.length > 30 || emergencyContact.length === 0) {
+                document.getElementById('emergency_contact').classList.add('is-invalid');
+                document.getElementById('emergency_contact_feedback').style.display = 'block';
+                isValid = false;
+            } else {
+                document.getElementById('emergency_contact').classList.remove('is-invalid');
+                document.getElementById('emergency_contact_feedback').style.display = 'none';
+            }
+            
+            // 如果验证失败，阻止表单提交
+            if (!isValid) {
+                e.preventDefault();
+                return false;
+            }
+            
+            // 检查文件是否已选择
+            if (!fileInput.files[0]) {
+                const errorNotification = document.getElementById('errorNotification');
+                const errorMessage = document.getElementById('errorMessage');
+                errorMessage.textContent = '请选择临床特征文件';
+                errorNotification.style.display = 'flex';
+                e.preventDefault();
+                return false;
+            }
+            
+            // 显示确认对话框
+            if (!confirm('确定要提交该患者信息吗？')) {
+                e.preventDefault();
+                return false;
+            }
+            
+            return true;
+        });
+        
+        // 关闭通知
+        const closeButtons = document.querySelectorAll('.notification .close-btn');
+        closeButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                this.closest('.notification').style.display = 'none';
+            });
+        });
+
+        // 取消按钮事件处理
+        document.getElementById('cancelButton').addEventListener('click', function() {
+            window.location.href = "{% url 'patient_records:patient_list' %}";
+        });
+    });
+</script>
+{% endblock %}
+{% endblock %} 

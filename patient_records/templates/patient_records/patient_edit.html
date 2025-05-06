@@ -1,0 +1,676 @@
+{% extends 'index.html' %}
+{% load static %}
+{% load custom_filters %}
+
+{% block breadcrumb %}
+<li class="breadcrumb-item"><a href="{% url 'patient_records:patient_list' %}">患者管理</a></li>
+<li class="breadcrumb-item active" aria-current="page">编辑患者信息</li>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    {% if messages %}
+    <div class="messages mb-4">
+        {% for message in messages %}
+        <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}{{ message.tags }}{% endif %} alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+    
+    <form method="post" action="{% url 'patient_records:patient_edit' patient.patient_id %}">
+        {% csrf_token %}
+        
+        <!-- 患者基本信息卡片 -->
+        <div class="card mb-4">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0"><i class="bi bi-person-badge me-2"></i>患者基本信息</h5>
+                <div>
+                    <a href="{% url 'patient_records:patient_list' %}" class="btn btn-outline-secondary btn-sm me-2">
+                        <i class="bi bi-arrow-left"></i> 返回列表
+                    </a>
+                    <button type="submit" class="btn btn-success btn-sm">
+                        <i class="bi bi-check-circle"></i> 保存更改
+                    </button>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-3 mb-3">
+                        <div class="info-item">
+                            <div class="info-label">患者ID</div>
+                            <div class="info-value"><span class="badge bg-light text-dark">{{ patient.patient_id }}</span></div>
+                            <input type="hidden" name="patient_id" value="{{ patient.patient_id }}">
+                        </div>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <div class="info-item">
+                            <div class="info-label">姓名</div>
+                            <div class="info-value">
+                                <input type="text" class="form-control form-control-sm" name="name" value="{{ patient.name }}" maxlength="30" placeholder="姓名长度不超过30个字符" required>
+                                <div class="invalid-feedback" id="name_feedback">姓名长度必须在1-30个字符之间</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <div class="info-item">
+                            <div class="info-label">性别</div>
+                            <div class="info-value">
+                                <select class="form-select form-select-sm" name="gender">
+                                    <option value="Male" {% if patient.gender == 'Male' %}selected{% endif %}>男</option>
+                                    <option value="Female" {% if patient.gender == 'Female' %}selected{% endif %}>女</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <div class="info-item">
+                            <div class="info-label">年龄</div>
+                            <div class="info-value">
+                                <input type="number" class="form-control form-control-sm" name="age" value="{% if patient.clinical_features %}{{ patient.clinical_features.age }}{% else %}{{ patient.get_age }}{% endif %}" min="0" max="120">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <div class="info-item">
+                            <div class="info-label">出生日期</div>
+                            <div class="info-value">
+                                <input type="date" class="form-control form-control-sm" name="birth_date" value="{{ patient.birth_date|date:'Y-m-d' }}" required>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <div class="info-item">
+                            <div class="info-label">联系方式</div>
+                            <div class="info-value">
+                                <input type="text" class="form-control form-control-sm" name="phone" value="{{ patient.phone|default:'' }}" maxlength="11" pattern="[0-9]{11}" placeholder="请输入11位手机号码" required>
+                                <div class="invalid-feedback" id="phone_feedback">请输入有效的11位手机号码</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <div class="info-item">
+                            <div class="info-label">体温</div>
+                            <div class="info-value">
+                                <input type="text" class="form-control form-control-sm" name="body_temperature" value="{% if patient.clinical_features %}{{ patient.clinical_features.body_temperature }}{% endif %}">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <div class="info-item">
+                            <div class="info-label">基础疾病</div>
+                            <div class="info-value">
+                                <input type="text" class="form-control form-control-sm" name="underlying_diseases" value="{% if patient.clinical_features %}{{ patient.clinical_features.underlying_diseases|default:'' }}{% endif %}">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <div class="info-item">
+                            <div class="info-label">身份证号</div>
+                            <div class="info-value">
+                                <input type="text" class="form-control form-control-sm" name="id_card" value="{{ patient.id_card|default:'' }}" minlength="18" maxlength="18" pattern="[0-9Xx]{18}" placeholder="请输入18位身份证号码" required>
+                                <div class="invalid-feedback" id="id_card_feedback">请输入有效的18位身份证号码</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <div class="info-item">
+                            <div class="info-label">紧急联系人</div>
+                            <div class="info-value">
+                                <input type="text" class="form-control form-control-sm" name="emergency_contact" value="{{ patient.emergency_contact|default:'' }}" maxlength="30" placeholder="联系人长度不超过30个字符" required>
+                                <div class="invalid-feedback" id="emergency_contact_feedback">紧急联系人长度必须在1-30个字符之间</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <div class="info-item">
+                            <div class="info-label">紧急联系电话</div>
+                            <div class="info-value">
+                                <input type="text" class="form-control form-control-sm" name="emergency_phone" value="{{ patient.emergency_phone|default:'' }}" maxlength="11" pattern="[0-9]{11}" placeholder="请输入11位手机号码" required>
+                                <div class="invalid-feedback" id="emergency_phone_feedback">请输入有效的11位手机号码</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 临床特征表格 -->
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0"><i class="bi bi-clipboard-data me-2"></i>临床特征详情</h5>
+                <ul class="nav nav-tabs card-header-tabs" id="clinical-tabs" role="tablist">
+                    <li class="nav-item">
+                        <a class="nav-link active" id="routine-tab" data-bs-toggle="tab" href="#routine" role="tab">常规血液检查</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" id="coagulation-tab" data-bs-toggle="tab" href="#coagulation" role="tab">凝血功能检查</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" id="inflammation-tab" data-bs-toggle="tab" href="#inflammation" role="tab">炎症指标</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" id="biochemical-tab" data-bs-toggle="tab" href="#biochemical" role="tab">生化检查</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" id="immunity-tab" data-bs-toggle="tab" href="#immunity" role="tab">免疫细胞分型</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" id="cytokine-tab" data-bs-toggle="tab" href="#cytokine" role="tab">细胞因子</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" id="urine-tab" data-bs-toggle="tab" href="#urine" role="tab">尿常规</a>
+                    </li>
+                </ul>
+            </div>
+            <div class="card-body">
+                <div class="tab-content" id="clinical-tab-content">
+                    <!-- 常规血液检查标签页 -->
+                    <div class="tab-pane fade show active" id="routine" role="tabpanel">
+                        <h4 class="mb-3">Routine Blood Test</h4>
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Clinical feature</th>
+                                        <th>Abbreviation</th>
+                                        <th>Value</th>
+                                        <th>Normal range</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% with cf=patient.clinical_features %}
+                                    <tr>
+                                        <td>Mean corpuscular hemoglobin concentration</td>
+                                        <td>MCHC</td>
+                                        <td><input type="text" class="form-control form-control-sm" name="MCHC" value="{{ cf.MCHC|default:'' }}"></td>
+                                        <td>316-354 g/L</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Mean corpuscular hemoglobin</td>
+                                        <td>MCH</td>
+                                        <td><input type="text" class="form-control form-control-sm" name="MCH" value="{{ cf.MCH|default:'' }}"></td>
+                                        <td>27-34 pg</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Mean corpuscular volume</td>
+                                        <td>MCV</td>
+                                        <td><input type="text" class="form-control form-control-sm" name="MCV" value="{{ cf.MCV|default:'' }}"></td>
+                                        <td>82-100 fl</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Hematocrit</td>
+                                        <td>HCT</td>
+                                        <td><input type="text" class="form-control form-control-sm" name="HCT" value="{{ cf.HCT|default:'' }}"></td>
+                                        <td>40-50 %</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Hemoglobin</td>
+                                        <td>HGB</td>
+                                        <td><input type="text" class="form-control form-control-sm" name="HGB" value="{{ cf.HGB|default:'' }}"></td>
+                                        <td>130-175 g/L</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Red blood cell</td>
+                                        <td>RBC</td>
+                                        <td><input type="text" class="form-control form-control-sm" name="RBC" value="{{ cf.RBC|default:'' }}"></td>
+                                        <td>4.3-5.8 T/L</td>
+                                    </tr>
+                                    <tr>
+                                        <td>White blood cell</td>
+                                        <td>WBC</td>
+                                        <td><input type="text" class="form-control form-control-sm" name="WBC" value="{{ cf.WBC|default:'' }}"></td>
+                                        <td>3.5-9.5 G/L</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Platelet count</td>
+                                        <td>PLT</td>
+                                        <td><input type="text" class="form-control form-control-sm" name="PLT" value="{{ cf.PLT|default:'' }}"></td>
+                                        <td>125-350 G/L</td>
+                                    </tr>
+                                    {% endwith %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    
+                    <!-- 凝血功能检查标签页 -->
+                    <div class="tab-pane fade" id="coagulation" role="tabpanel">
+                        <h4 class="mb-3">Coagulation Function Tests</h4>
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Clinical feature</th>
+                                        <th>Abbreviation</th>
+                                        <th>Value</th>
+                                        <th>Normal range</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% with cf=patient.clinical_features %}
+                                    <tr>
+                                        <td>D-Dimer</td>
+                                        <td>DD</td>
+                                        <td><input type="text" class="form-control form-control-sm" name="DD" value="{{ cf.DD|default:'' }}"></td>
+                                        <td>&lt;0.5 mg/L FEU</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Thrombin Time</td>
+                                        <td>TT</td>
+                                        <td><input type="text" class="form-control form-control-sm" name="TT" value="{{ cf.TT|default:'' }}"></td>
+                                        <td>16-18 s</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Fibrinogen</td>
+                                        <td>FIB</td>
+                                        <td><input type="text" class="form-control form-control-sm" name="FIB" value="{{ cf.FIB|default:'' }}"></td>
+                                        <td>2.0-4.0 g/l</td>
+                                    </tr>
+                                    {% endwith %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    
+                    <!-- 炎症指标标签页 -->
+                    <div class="tab-pane fade" id="inflammation" role="tabpanel">
+                        <h4 class="mb-3">Inflammation Markers</h4>
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Clinical feature</th>
+                                        <th>Abbreviation</th>
+                                        <th>Value</th>
+                                        <th>Normal range</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% with cf=patient.clinical_features %}
+                                    <tr>
+                                        <td>Erythrocyte Sedimentation Rate</td>
+                                        <td>ESR</td>
+                                        <td><input type="text" class="form-control form-control-sm" name="ESR" value="{{ cf.ESR|default:'' }}"></td>
+                                        <td>&lt;15 mm/h</td>
+                                    </tr>
+                                    <tr>
+                                        <td>C-Reactive Protein</td>
+                                        <td>CRP</td>
+                                        <td><input type="text" class="form-control form-control-sm" name="CRP" value="{{ cf.CRP|default:'' }}"></td>
+                                        <td>&lt;10 mg/L</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Procalcitonin</td>
+                                        <td>PCT</td>
+                                        <td><input type="text" class="form-control form-control-sm" name="PCT" value="{{ cf.PCT|default:'' }}"></td>
+                                        <td>&lt;0.05 ng/mL</td>
+                                    </tr>
+                                    {% endwith %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    
+                    <!-- 生化检查标签页 -->
+                    <div class="tab-pane fade" id="biochemical" role="tabpanel">
+                        <h4 class="mb-3">Biochemical Tests</h4>
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Clinical feature</th>
+                                        <th>Abbreviation</th>
+                                        <th>Value</th>
+                                        <th>Normal range</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% with cf=patient.clinical_features %}
+                                    <tr>
+                                        <td>Alanine aminotransferase</td>
+                                        <td>ALT</td>
+                                        <td><input type="text" class="form-control form-control-sm" name="ALT" value="{{ cf.ALT|default:'' }}"></td>
+                                        <td>9-50 U/L</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Aspartate aminotransferase</td>
+                                        <td>AST</td>
+                                        <td><input type="text" class="form-control form-control-sm" name="AST" value="{{ cf.AST|default:'' }}"></td>
+                                        <td>15-40 U/L</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Albumin</td>
+                                        <td>ALB</td>
+                                        <td><input type="text" class="form-control form-control-sm" name="ALB" value="{{ cf.ALB|default:'' }}"></td>
+                                        <td>35-55 g/L</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Globulin</td>
+                                        <td>GLB</td>
+                                        <td><input type="text" class="form-control form-control-sm" name="GLB" value="{{ cf.GLB|default:'' }}"></td>
+                                        <td>20-40 g/L</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Total bilirubin</td>
+                                        <td>TB</td>
+                                        <td><input type="text" class="form-control form-control-sm" name="TBIL" value="{{ cf.TBIL|default:'' }}"></td>
+                                        <td>5-21 μmol/L</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Blood urea nitrogen</td>
+                                        <td>BUN</td>
+                                        <td><input type="text" class="form-control form-control-sm" name="BUN" value="{{ cf.BUN|default:'' }}"></td>
+                                        <td>3.6-9.5 mmol/L</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Serum creatinine</td>
+                                        <td>SCR</td>
+                                        <td><input type="text" class="form-control form-control-sm" name="CREA" value="{{ cf.CREA|default:'' }}"></td>
+                                        <td>59-104 μmol/L</td>
+                                    </tr>
+                                    {% endwith %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    
+                    <!-- 免疫细胞分型标签页 -->
+                    <div class="tab-pane fade" id="immunity" role="tabpanel">
+                        <h4 class="mb-3">Immune Cell Typing</h4>
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Clinical feature</th>
+                                        <th>Abbreviation</th>
+                                        <th>Value</th>
+                                        <th>Normal range</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% with cf=patient.clinical_features %}
+                                    <tr>
+                                        <td>CD3+ T lymphocytes</td>
+                                        <td>CD3</td>
+                                        <td><input type="text" class="form-control form-control-sm" name="CD3" value="{{ cf.CD3|default:'' }}"></td>
+                                        <td>58-85 %</td>
+                                    </tr>
+                                    <tr>
+                                        <td>CD4+ T lymphocytes</td>
+                                        <td>CD4</td>
+                                        <td><input type="text" class="form-control form-control-sm" name="CD4" value="{{ cf.CD4|default:'' }}"></td>
+                                        <td>27-57 %</td>
+                                    </tr>
+                                    <tr>
+                                        <td>CD8+ T lymphocytes</td>
+                                        <td>CD8</td>
+                                        <td><input type="text" class="form-control form-control-sm" name="CD8" value="{{ cf.CD8|default:'' }}"></td>
+                                        <td>15-34 %</td>
+                                    </tr>
+                                    <tr>
+                                        <td>CD4/CD8 ratio</td>
+                                        <td>CD4/CD8</td>
+                                        <td><input type="text" class="form-control form-control-sm" name="CD4_CD8" value="{{ cf.CD4_CD8|default:'' }}"></td>
+                                        <td>1.0-2.1</td>
+                                    </tr>
+                                    {% endwith %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    
+                    <!-- 细胞因子标签页 -->
+                    <div class="tab-pane fade" id="cytokine" role="tabpanel">
+                        <h4 class="mb-3">Cytokine Profile Tests</h4>
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Clinical feature</th>
+                                        <th>Abbreviation</th>
+                                        <th>Value</th>
+                                        <th>Normal range</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% with cf=patient.clinical_features %}
+                                    <tr>
+                                        <td>Interleukin-2</td>
+                                        <td>IL-2</td>
+                                        <td><input type="text" class="form-control form-control-sm" name="IL_2" value="{{ cf.IL_2|default:'' }}"></td>
+                                        <td>&lt;4.0 pg/mL</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Interleukin-4</td>
+                                        <td>IL-4</td>
+                                        <td><input type="text" class="form-control form-control-sm" name="IL_4" value="{{ cf.IL_4|default:'' }}"></td>
+                                        <td>&lt;3.6 pg/mL</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Interleukin-6</td>
+                                        <td>IL-6</td>
+                                        <td><input type="text" class="form-control form-control-sm" name="IL_6" value="{{ cf.IL_6|default:'' }}"></td>
+                                        <td>&lt;7.0 pg/mL</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Interleukin-10</td>
+                                        <td>IL-10</td>
+                                        <td><input type="text" class="form-control form-control-sm" name="IL_10" value="{{ cf.IL_10|default:'' }}"></td>
+                                        <td>&lt;9.1 pg/mL</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Tumor necrosis factor alpha</td>
+                                        <td>TNF-α</td>
+                                        <td><input type="text" class="form-control form-control-sm" name="TNF" value="{{ cf.TNF|default:'' }}"></td>
+                                        <td>&lt;8.1 pg/mL</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Interferon gamma</td>
+                                        <td>IFN-γ</td>
+                                        <td><input type="text" class="form-control form-control-sm" name="IFN" value="{{ cf.IFN|default:'' }}"></td>
+                                        <td>&lt;18 pg/mL</td>
+                                    </tr>
+                                    {% endwith %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    
+                    <!-- 尿常规标签页 -->
+                    <div class="tab-pane fade" id="urine" role="tabpanel">
+                        <h4 class="mb-3">Urinalysis</h4>
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Clinical feature</th>
+                                        <th>Abbreviation</th>
+                                        <th>Value</th>
+                                        <th>Normal range</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% with cf=patient.clinical_features %}
+                                    <tr>
+                                        <td>Urine red blood cells</td>
+                                        <td>URBC</td>
+                                        <td><input type="text" class="form-control form-control-sm" name="URBC" value="{{ cf.URBC|default:'' }}"></td>
+                                        <td>&lt;5 /HPF</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Urine white blood cells</td>
+                                        <td>UWBC</td>
+                                        <td><input type="text" class="form-control form-control-sm" name="UWBC" value="{{ cf.UWBC|default:'' }}"></td>
+                                        <td>&lt;10 /HPF</td>
+                                    </tr>
+                                    {% endwith %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <div class="mt-4">
+                    <button type="submit" class="btn btn-success">
+                        <i class="bi bi-check-circle"></i> 保存更改
+                    </button>
+                    <a href="{% url 'patient_records:patient_detail' patient.patient_id %}" class="btn btn-outline-secondary ms-2">
+                        <i class="bi bi-x-circle"></i> 取消
+                    </a>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+<style>
+    .info-item {
+        margin-bottom: 0.5rem;
+    }
+    .info-label {
+        font-weight: 500;
+        color: #6c757d;
+        margin-bottom: 0.25rem;
+    }
+    .status-badge {
+        display: inline-block;
+        padding: 0.25em 0.6em;
+        font-size: 0.75em;
+        font-weight: 700;
+        line-height: 1;
+        text-align: center;
+        white-space: nowrap;
+        vertical-align: baseline;
+        border-radius: 0.25rem;
+    }
+    .status-normal {
+        background-color: #d1e7dd;
+        color: #0f5132;
+    }
+    .status-warning {
+        background-color: #fff3cd;
+        color: #664d03;
+    }
+    .status-danger {
+        background-color: #f8d7da;
+        color: #842029;
+    }
+    .is-invalid {
+        border-color: #dc3545;
+    }
+    .invalid-feedback {
+        display: none;
+        color: #dc3545;
+        font-size: 12px;
+        margin-top: 0.25rem;
+    }
+    /* 修改placeholder文本颜色 */
+    ::placeholder {
+        color: #c0c0c0 !important;
+        opacity: 0.7;
+    }
+    ::-webkit-input-placeholder {
+        color: #c0c0c0 !important;
+        opacity: 0.7;
+    }
+    ::-moz-placeholder {
+        color: #c0c0c0 !important;
+        opacity: 0.7;
+    }
+    :-ms-input-placeholder {
+        color: #c0c0c0 !important;
+        opacity: 0.7;
+    }
+    ::-ms-input-placeholder {
+        color: #c0c0c0 !important;
+        opacity: 0.7;
+    }
+</style>
+
+{% block page_scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // 获取表单元素
+        const form = document.querySelector('form');
+        
+        // 表单提交前的验证
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            let isValid = true;
+            
+            // 验证姓名长度
+            const name = document.querySelector('input[name="name"]');
+            if (name.value.length > 30 || name.value.length === 0) {
+                name.classList.add('is-invalid');
+                document.getElementById('name_feedback').style.display = 'block';
+                isValid = false;
+            } else {
+                name.classList.remove('is-invalid');
+                document.getElementById('name_feedback').style.display = 'none';
+            }
+            
+            // 验证身份证号
+            const idCard = document.querySelector('input[name="id_card"]');
+            if (!idCard.value.match(/^[0-9Xx]{18}$/)) {
+                idCard.classList.add('is-invalid');
+                document.getElementById('id_card_feedback').style.display = 'block';
+                isValid = false;
+            } else {
+                idCard.classList.remove('is-invalid');
+                document.getElementById('id_card_feedback').style.display = 'none';
+            }
+            
+            // 验证联系方式
+            const phone = document.querySelector('input[name="phone"]');
+            if (!phone.value.match(/^[0-9]{11}$/)) {
+                phone.classList.add('is-invalid');
+                document.getElementById('phone_feedback').style.display = 'block';
+                isValid = false;
+            } else {
+                phone.classList.remove('is-invalid');
+                document.getElementById('phone_feedback').style.display = 'none';
+            }
+            
+            // 验证紧急联系人
+            const emergencyContact = document.querySelector('input[name="emergency_contact"]');
+            if (emergencyContact.value.length > 30 || emergencyContact.value.length === 0) {
+                emergencyContact.classList.add('is-invalid');
+                document.getElementById('emergency_contact_feedback').style.display = 'block';
+                isValid = false;
+            } else {
+                emergencyContact.classList.remove('is-invalid');
+                document.getElementById('emergency_contact_feedback').style.display = 'none';
+            }
+            
+            // 验证紧急联系电话
+            const emergencyPhone = document.querySelector('input[name="emergency_phone"]');
+            if (!emergencyPhone.value.match(/^[0-9]{11}$/)) {
+                emergencyPhone.classList.add('is-invalid');
+                document.getElementById('emergency_phone_feedback').style.display = 'block';
+                isValid = false;
+            } else {
+                emergencyPhone.classList.remove('is-invalid');
+                document.getElementById('emergency_phone_feedback').style.display = 'none';
+            }
+            
+            // 如果验证通过，弹出确认对话框
+            if (isValid) {
+                if (confirm('确定要保存这些更改吗？')) {
+                    form.submit();
+                }
+            } else {
+                // 滚动到第一个错误输入
+                const firstInvalid = document.querySelector('.is-invalid');
+                if (firstInvalid) {
+                    firstInvalid.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+            }
+        });
+    });
+</script>
+{% endblock %}
+
+{% endblock %} 

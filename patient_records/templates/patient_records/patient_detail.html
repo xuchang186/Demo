@@ -1,0 +1,548 @@
+{% extends 'index.html' %}
+{% load static %}
+{% load custom_filters %}
+
+{% block breadcrumb %}
+<li class="breadcrumb-item"><a href="{% url 'patient_records:patient_list' %}">患者管理</a></li>
+<li class="breadcrumb-item active" aria-current="page">临床特征详情</li>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- 患者基本信息卡片 -->
+    <div class="card mb-4">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h5 class="mb-0"><i class="bi bi-person-badge me-2"></i>患者基本信息</h5>
+            <div>
+                <a href="{% url 'patient_records:patient_list' %}" class="btn btn-outline-secondary btn-sm me-2">
+                    <i class="bi bi-arrow-left"></i> 返回列表
+                </a>
+                <a href="{% url 'patient_records:patient_edit' patient.patient_id %}" class="btn btn-outline-primary btn-sm me-2">
+                    <i class="bi bi-pencil"></i> 编辑信息
+                </a>
+                <a href="{% url 'patient_records:patient_add' %}" class="btn btn-primary btn-sm">
+                    <i class="bi bi-plus-circle"></i> 新增患者
+                </a>
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-3 mb-3">
+                    <div class="info-item">
+                        <div class="info-label">患者ID</div>
+                        <div class="info-value"><span class="badge bg-light text-dark">{{ patient.patient_id }}</span></div>
+                    </div>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <div class="info-item">
+                        <div class="info-label">姓名</div>
+                        <div class="info-value">{{ patient.name }}</div>
+                    </div>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <div class="info-item">
+                        <div class="info-label">性别</div>
+                        <div class="info-value">{{ patient.get_gender_display }}</div>
+                    </div>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <div class="info-item">
+                        <div class="info-label">年龄</div>
+                        <div class="info-value">
+                            {% if patient.clinical_features %}
+                                {{ patient.clinical_features.age }}岁
+                            {% else %}
+                                {{ patient.get_age }}岁
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <div class="info-item">
+                        <div class="info-label">联系方式</div>
+                        <div class="info-value">{{ patient.phone|default:"未填写" }}</div>
+                    </div>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <div class="info-item">
+                        <div class="info-label">体温</div>
+                        <div class="info-value">
+                            {% if patient.clinical_features %}
+                                <span class="status-badge {{ patient.clinical_features.body_temperature|temp_status }}">{{ patient.clinical_features.body_temperature }}°C</span>
+                            {% else %}
+                                <span class="text-muted">未记录</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <div class="info-item">
+                        <div class="info-label">基础疾病</div>
+                        <div class="info-value">
+                            {% if patient.clinical_features and patient.clinical_features.underlying_diseases %}
+                                {{ patient.clinical_features.underlying_diseases }}
+                            {% else %}
+                                无
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 临床特征表格 -->
+    {% if patient.clinical_features %}
+    <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h5 class="mb-0"><i class="bi bi-clipboard-data me-2"></i>临床特征详情</h5>
+            <ul class="nav nav-tabs card-header-tabs" id="clinical-tabs" role="tablist">
+                <li class="nav-item">
+                    <a class="nav-link active" id="routine-tab" data-bs-toggle="tab" href="#routine" role="tab">常规血液检查</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" id="coagulation-tab" data-bs-toggle="tab" href="#coagulation" role="tab">凝血功能检查</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" id="inflammation-tab" data-bs-toggle="tab" href="#inflammation" role="tab">炎症指标</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" id="biochemical-tab" data-bs-toggle="tab" href="#biochemical" role="tab">生化检查</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" id="immunity-tab" data-bs-toggle="tab" href="#immunity" role="tab">免疫细胞分型</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" id="cytokine-tab" data-bs-toggle="tab" href="#cytokine" role="tab">细胞因子</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" id="urine-tab" data-bs-toggle="tab" href="#urine" role="tab">尿常规</a>
+                </li>
+            </ul>
+        </div>
+        <div class="card-body">
+            <div class="tab-content" id="clinical-tab-content">
+                <!-- 常规血液检查标签页 -->
+                <div class="tab-pane fade show active" id="routine" role="tabpanel">
+                    <h4 class="mb-3">Routine Blood Test</h4>
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Clinical feature</th>
+                                    <th>Abbreviation</th>
+                                    <th>Value</th>
+                                    <th>Normal range</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% with cf=patient.clinical_features %}
+                                <tr>
+                                    <td>Mean corpuscular hemoglobin concentration</td>
+                                    <td>MCHC</td>
+                                    <td>{{ cf.MCHC|default:"-" }}</td>
+                                    <td>316-354 g/L</td>
+                                </tr>
+                                <tr>
+                                    <td>Mean corpuscular hemoglobin</td>
+                                    <td>MCH</td>
+                                    <td>{{ cf.MCH|default:"-" }}</td>
+                                    <td>27-34 pg</td>
+                                </tr>
+                                <tr>
+                                    <td>Mean corpuscular volume</td>
+                                    <td>MCV</td>
+                                    <td>{{ cf.MCV|default:"-" }}</td>
+                                    <td>82-100 fl</td>
+                                </tr>
+                                <tr>
+                                    <td>Hematocrit</td>
+                                    <td>HCT</td>
+                                    <td>{{ cf.HCT|default:"-" }}</td>
+                                    <td>40-50 %</td>
+                                </tr>
+                                <tr>
+                                    <td>Hemoglobin</td>
+                                    <td>HGB</td>
+                                    <td>{{ cf.HGB|default:"-" }}</td>
+                                    <td>130-175 g/L</td>
+                                </tr>
+                                <tr>
+                                    <td>Red blood cell</td>
+                                    <td>RBC</td>
+                                    <td>{{ cf.RBC|default:"-" }}</td>
+                                    <td>4.3-5.8 T/L</td>
+                                </tr>
+                                <tr>
+                                    <td>White blood cell</td>
+                                    <td>WBC</td>
+                                    <td>{{ cf.WBC|default:"-" }}</td>
+                                    <td>3.5-9.5 G/L</td>
+                                </tr>
+                                <tr>
+                                    <td>Platelet count</td>
+                                    <td>PLT</td>
+                                    <td>{{ cf.PLT|default:"-" }}</td>
+                                    <td>125-350 G/L</td>
+                                </tr>
+                                {% endwith %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                
+                <!-- 凝血功能检查标签页 -->
+                <div class="tab-pane fade" id="coagulation" role="tabpanel">
+                    <h4 class="mb-3">Coagulation Function Tests</h4>
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Clinical feature</th>
+                                    <th>Abbreviation</th>
+                                    <th>Value</th>
+                                    <th>Normal range</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% with cf=patient.clinical_features %}
+                                <tr>
+                                    <td>D-Dimer</td>
+                                    <td>DD</td>
+                                    <td>{{ cf.DD|default:"-" }}</td>
+                                    <td>&lt;0.5 mg/L FEU</td>
+                                </tr>
+                                <tr>
+                                    <td>Thrombin Time</td>
+                                    <td>TT</td>
+                                    <td>{{ cf.TT|default:"-" }}</td>
+                                    <td>16-18 s</td>
+                                </tr>
+                                <tr>
+                                    <td>Fibrinogen</td>
+                                    <td>FIB</td>
+                                    <td>{{ cf.FIB|default:"-" }}</td>
+                                    <td>2.0-4.0 g/l</td>
+                                </tr>
+                                {% endwith %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                
+                <!-- 炎症指标标签页 -->
+                <div class="tab-pane fade" id="inflammation" role="tabpanel">
+                    <h4 class="mb-3">Inflammation Markers</h4>
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Clinical feature</th>
+                                    <th>Abbreviation</th>
+                                    <th>Value</th>
+                                    <th>Normal range</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% with cf=patient.clinical_features %}
+                                <tr>
+                                    <td>Erythrocyte Sedimentation Rate</td>
+                                    <td>ESR</td>
+                                    <td>{{ cf.ESR|default:"-" }}</td>
+                                    <td>&lt;15 mm/h</td>
+                                </tr>
+                                <tr>
+                                    <td>C-reactive protein</td>
+                                    <td>CRP</td>
+                                    <td>{{ cf.CRP|default:"-" }}</td>
+                                    <td>&lt;8.00 mg/L</td>
+                                </tr>
+                                <tr>
+                                    <td>Procalcitonin</td>
+                                    <td>PCT</td>
+                                    <td>{{ cf.PCT|default:"-" }}</td>
+                                    <td>&lt;0.5 ng/mL</td>
+                                </tr>
+                                {% endwith %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                
+                <!-- 生化检查标签页 -->
+                <div class="tab-pane fade" id="biochemical" role="tabpanel">
+                    <h4 class="mb-3">Biochemical Tests</h4>
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Clinical feature</th>
+                                    <th>Abbreviation</th>
+                                    <th>Value</th>
+                                    <th>Normal range</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% with cf=patient.clinical_features %}
+                                <tr>
+                                    <td>Alanine aminotransferase</td>
+                                    <td>ALT</td>
+                                    <td>{{ cf.ALT|default:"-" }}</td>
+                                    <td>9-50 U/L</td>
+                                </tr>
+                                <tr>
+                                    <td>Aspartate aminotransferase</td>
+                                    <td>AST</td>
+                                    <td>{{ cf.AST|default:"-" }}</td>
+                                    <td>15-40 U/L</td>
+                                </tr>
+                                <tr>
+                                    <td>Albumin</td>
+                                    <td>ALB</td>
+                                    <td>{{ cf.ALB|default:"-" }}</td>
+                                    <td>35-55 g/L</td>
+                                </tr>
+                                <tr>
+                                    <td>Urea nitrogen</td>
+                                    <td>BUN</td>
+                                    <td>{{ cf.BUN|default:"-" }}</td>
+                                    <td>2.9-8.2 mmol/L</td>
+                                </tr>
+                                <tr>
+                                    <td>Creatinine</td>
+                                    <td>CREA</td>
+                                    <td>{{ cf.CREA|default:"-" }}</td>
+                                    <td>44.0-133.0 μmol/L</td>
+                                </tr>
+                                <tr>
+                                    <td>Total bilirubin</td>
+                                    <td>TBIL</td>
+                                    <td>{{ cf.TBIL|default:"-" }}</td>
+                                    <td>5.1-19.0 μmol/L</td>
+                                </tr>
+                                <tr>
+                                    <td>Glucose</td>
+                                    <td>GLU</td>
+                                    <td>{{ cf.GLU|default:"-" }}</td>
+                                    <td>3.90-6.10 mmol/L</td>
+                                </tr>
+                                {% endwith %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                
+                <!-- 免疫细胞分型标签页 -->
+                <div class="tab-pane fade" id="immunity" role="tabpanel">
+                    <h4 class="mb-3">Immune Cell Typing</h4>
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Clinical feature</th>
+                                    <th>Abbreviation</th>
+                                    <th>Value</th>
+                                    <th>Normal range</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% with cf=patient.clinical_features %}
+                                <tr>
+                                    <td>CD3+ T cells</td>
+                                    <td>CD3</td>
+                                    <td>{{ cf.CD3|default:"-" }}</td>
+                                    <td>58-85 %</td>
+                                </tr>
+                                <tr>
+                                    <td>CD4+ T cells</td>
+                                    <td>CD4</td>
+                                    <td>{{ cf.CD4|default:"-" }}</td>
+                                    <td>25-54 %</td>
+                                </tr>
+                                <tr>
+                                    <td>CD8+ T cells</td>
+                                    <td>CD8</td>
+                                    <td>{{ cf.CD8|default:"-" }}</td>
+                                    <td>19-34 %</td>
+                                </tr>
+                                {% endwith %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                
+                <!-- 细胞因子标签页 -->
+                <div class="tab-pane fade" id="cytokine" role="tabpanel">
+                    <h4 class="mb-3">Cytokine Profile Tests</h4>
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Clinical feature</th>
+                                    <th>Abbreviation</th>
+                                    <th>Value</th>
+                                    <th>Normal range</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% with cf=patient.clinical_features %}
+                                <tr>
+                                    <td>Interleukin-2</td>
+                                    <td>IL-2</td>
+                                    <td>{{ cf.IL2|default:"-" }}</td>
+                                    <td>&lt;4.0 pg/mL</td>
+                                </tr>
+                                <tr>
+                                    <td>Interleukin-4</td>
+                                    <td>IL-4</td>
+                                    <td>{{ cf.IL4|default:"-" }}</td>
+                                    <td>&lt;3.6 pg/mL</td>
+                                </tr>
+                                <tr>
+                                    <td>Interleukin-6</td>
+                                    <td>IL-6</td>
+                                    <td>{{ cf.IL6|default:"-" }}</td>
+                                    <td>&lt;7.0 pg/mL</td>
+                                </tr>
+                                <tr>
+                                    <td>Interleukin-10</td>
+                                    <td>IL-10</td>
+                                    <td>{{ cf.IL10|default:"-" }}</td>
+                                    <td>&lt;9.1 pg/mL</td>
+                                </tr>
+                                <tr>
+                                    <td>Tumor Necrosis Factor Alpha</td>
+                                    <td>TNF-α</td>
+                                    <td>{{ cf.TNFA|default:"-" }}</td>
+                                    <td>&lt;8.1 pg/mL</td>
+                                </tr>
+                                <tr>
+                                    <td>Interferon Gamma</td>
+                                    <td>IFN-γ</td>
+                                    <td>{{ cf.IFNG|default:"-" }}</td>
+                                    <td>&lt;18.0 pg/mL</td>
+                                </tr>
+                                {% endwith %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                
+                <!-- 尿常规标签页 -->
+                <div class="tab-pane fade" id="urine" role="tabpanel">
+                    <h4 class="mb-3">Urinalysis</h4>
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Clinical feature</th>
+                                    <th>Abbreviation</th>
+                                    <th>Value</th>
+                                    <th>Normal range</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% with cf=patient.clinical_features %}
+                                <tr>
+                                    <td>Urine Red Blood Cells</td>
+                                    <td>URBC</td>
+                                    <td>{{ cf.URBC|default:"-" }}</td>
+                                    <td>0-3 /HPF</td>
+                                </tr>
+                                <tr>
+                                    <td>Urine White Blood Cells</td>
+                                    <td>UWBC</td>
+                                    <td>{{ cf.UWBC|default:"-" }}</td>
+                                    <td>0-5 /HPF</td>
+                                </tr>
+                                {% endwith %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% else %}
+    <div class="alert alert-info">
+        <i class="bi bi-info-circle me-2"></i> 暂无临床特征记录
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block page_scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // 初始化Bootstrap标签页
+        var tabs = document.querySelectorAll('#clinical-tabs a');
+        tabs.forEach(function(tab) {
+            tab.addEventListener('click', function(e) {
+                e.preventDefault();
+                this.classList.add('active');
+                var target = document.querySelector(this.getAttribute('href'));
+                document.querySelectorAll('.tab-pane').forEach(function(pane) {
+                    pane.classList.remove('show', 'active');
+                });
+                document.querySelectorAll('#clinical-tabs a').forEach(function(t) {
+                    if (t !== this) t.classList.remove('active');
+                });
+                target.classList.add('show', 'active');
+            });
+        });
+    });
+</script>
+{% endblock %}
+
+{% block page_styles %}
+<style>
+    /* 信息展示项样式 */
+    .info-item {
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .info-label {
+        font-size: 0.85rem;
+        color: #6c757d;
+        margin-bottom: 4px;
+    }
+    
+    .info-value {
+        font-weight: 500;
+    }
+    
+    /* 表格样式 */
+    .feature-category-title {
+        margin-bottom: 15px;
+        color: #495057;
+        border-bottom: 1px solid #dee2e6;
+        padding-bottom: 8px;
+    }
+    
+    /* 异常值样式 */
+    .text-high {
+        color: #dc3545;
+        font-weight: 500;
+    }
+    
+    .text-low {
+        color: #0d6efd;
+        font-weight: 500;
+    }
+    
+    /* 表格悬停效果 */
+    .table-hover tbody tr:hover {
+        background-color: rgba(0,0,0,0.03);
+    }
+    
+    /* 标签页样式 */
+    .nav-tabs .nav-link {
+        color: #495057;
+    }
+    
+    .nav-tabs .nav-link.active {
+        font-weight: 500;
+    }
+</style>
+{% endblock %} 

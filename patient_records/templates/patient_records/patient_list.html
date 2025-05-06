@@ -1,0 +1,326 @@
+{% extends 'index.html' %}
+{% load static %}
+{% load custom_filters %}
+
+{% block breadcrumb %}
+<li class="breadcrumb-item active" aria-current="page">患者管理</li>
+{% endblock %}
+
+{% block page_css %}
+<style>
+    /* 特定页面样式 */
+    .page-header {
+        margin-bottom: 25px;
+        position: relative;
+        padding-bottom: 15px;
+    }
+    
+    .page-header::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 60px;
+        height: 3px;
+        background: linear-gradient(90deg, #2B5DE0, #4A8CFF);
+        border-radius: 3px;
+    }
+    
+    /* 搜索区域增强 */
+    .search-card {
+        border-radius: var(--el-border-radius-base);
+        box-shadow: var(--el-box-shadow-light);
+        border: 1px solid var(--el-border-color-light);
+        overflow: hidden;
+        margin-bottom: 25px;
+        animation: fadeIn 0.5s ease-out;
+    }
+    
+    .search-card .card-header {
+        background: linear-gradient(to right, rgba(43, 93, 224, 0.08), rgba(255, 255, 255, 0));
+        border-bottom: 1px solid var(--el-border-color-light);
+        padding: 16px 20px;
+        font-weight: 500;
+        display: flex;
+        align-items: center;
+    }
+    
+    .search-card .card-header i {
+        color: var(--el-color-primary);
+        margin-right: 8px;
+    }
+    
+    .search-card .card-body {
+        padding: 20px;
+    }
+    
+    /* 表格区域增强 */
+    .table-card {
+        border-radius: var(--el-border-radius-base);
+        box-shadow: var(--el-box-shadow-light);
+        border: 1px solid var(--el-border-color-light);
+        overflow: hidden;
+        margin-bottom: 25px;
+        animation: slideInUp 0.5s ease-out;
+    }
+    
+    .table-responsive {
+        overflow-x: auto;
+    }
+    
+    /* 病历列表特殊样式 */
+    .status-badge {
+        transition: all 0.3s ease;
+    }
+    
+    .status-badge:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+    
+    /* 表格行动画 */
+    .table tbody tr {
+        transition: all 0.3s ease;
+    }
+    
+    .table tbody tr:hover {
+        transform: translateX(5px);
+        background-color: rgba(43, 93, 224, 0.05);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        position: relative;
+        z-index: 2;
+    }
+    
+    /* 动画效果 */
+    @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+    
+    @keyframes slideInUp {
+        from {
+            transform: translateY(20px);
+            opacity: 0;
+        }
+        to {
+            transform: translateY(0);
+            opacity: 1;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- 页面标题和操作按钮 -->
+    <div class="d-flex justify-content-between align-items-center page-header">
+        <h2 class="page-title">患者管理</h2>
+        <a href="{% url 'patient_records:patient_add' %}" class="btn btn-primary">
+            <i class="bi bi-plus-circle me-2"></i> 新增患者
+        </a>
+    </div>
+
+    <!-- 搜索区域 -->
+    <div class="card search-card mb-4">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <span><i class="bi bi-search me-2"></i> 搜索条件</span>
+        </div>
+        <div class="card-body">
+            <form method="get" class="row g-3">
+                <div class="col-md-3">
+                    <label for="search_id" class="form-label">患者ID</label>
+                    <input type="text" class="form-control" id="search_id" name="search_id" placeholder="输入患者ID" value="{{ search_id|default:'' }}">
+                </div>
+                <div class="col-md-3">
+                    <label for="search_name" class="form-label">姓名</label>
+                    <input type="text" class="form-control" id="search_name" name="search_name" placeholder="输入患者姓名" value="{{ search_name|default:'' }}">
+                </div>
+                <div class="col-md-3">
+                    <label for="search_contact" class="form-label">联系方式</label>
+                    <input type="text" class="form-control" id="search_contact" name="search_contact" placeholder="输入联系方式" value="{{ search_contact|default:'' }}">
+                </div>
+                <div class="col-md-3 d-flex align-items-end">
+                    <div class="d-grid gap-2 w-100">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-search me-1"></i> 搜索
+                        </button>
+                        <button type="reset" class="btn btn-secondary">
+                            <i class="bi bi-arrow-counterclockwise me-1"></i> 重置
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 病历列表 -->
+    <div class="card table-card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <span><i class="bi bi-list-ul me-2"></i> 患者列表</span>
+            <span class="badge bg-info">共 {{ patients|length }} 条记录</span>
+        </div>
+        <div class="card-body table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>患者ID</th>
+                        <th>姓名</th>
+                        <th>性别</th>
+                        <th>年龄</th>
+                        <th>联系方式</th>
+                        <th>体温</th>
+                        <th>基础疾病</th>
+                        <th width="150">操作</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% if patients %}
+                    {% for patient in patients %}
+                    <tr>
+                        <td><span class="badge bg-light text-dark">{{ patient.patient_id }}</span></td>
+                        <td>{{ patient.name }}</td>
+                        <td>{{ patient.get_gender_display }}</td>
+                        <td>
+                            {% if patient.clinical_features %}
+                                {{ patient.clinical_features.age }}岁
+                            {% else %}
+                                {{ patient.get_age }}岁
+                            {% endif %}
+                        </td>
+                        <td>{{ patient.phone|default:"未填写" }}</td>
+                        <td>
+                            {% if patient.clinical_features %}
+                            {% with cf=patient.clinical_features %}
+                                <span class="status-badge {{ cf.body_temperature|temp_status }}">{{ cf.body_temperature }}°C</span>
+                            {% endwith %}
+                            {% else %}
+                            <span class="text-muted">未记录</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ patient.clinical_features.underlying_diseases|default:"无" }}</td>
+                        <td>
+                            <div class="action-btns">
+                                <a href="{% url 'patient_records:patient_detail' patient.patient_id %}" class="btn btn-outline-primary btn-sm" data-bs-toggle="tooltip" title="查看详情">
+                                    <i class="bi bi-eye"></i>
+                                </a>
+                                <a href="{% url 'patient_records:patient_edit' patient.patient_id %}" class="btn btn-outline-secondary btn-sm" data-bs-toggle="tooltip" title="编辑">
+                                    <i class="bi bi-pencil"></i>
+                                </a>
+                                <a href="javascript:void(0)" class="btn btn-outline-danger btn-sm delete-btn" data-id="{{ patient.patient_id }}" data-bs-toggle="tooltip" title="删除">
+                                    <i class="bi bi-trash"></i>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                    {% else %}
+                    <tr>
+                        <td colspan="8" class="text-center py-4">
+                            <div class="empty-state">
+                                <i class="bi bi-inbox-fill"></i>
+                                <p>暂无病历记录</p>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endif %}
+                </tbody>
+            </table>
+            
+            <!-- 分页 -->
+            <nav aria-label="Page navigation" class="mt-4">
+                <ul class="pagination justify-content-center">
+                    <li class="page-item disabled">
+                        <a class="page-link" href="#" tabindex="-1" aria-disabled="true">
+                            <i class="bi bi-chevron-left"></i> 上一页
+                        </a>
+                    </li>
+                    <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                    <li class="page-item"><a class="page-link" href="#">2</a></li>
+                    <li class="page-item"><a class="page-link" href="#">3</a></li>
+                    <li class="page-item">
+                        <a class="page-link" href="#">
+                            下一页 <i class="bi bi-chevron-right"></i>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+<!-- 删除确认模态框 -->
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteModalLabel">确认删除</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>确定要删除这条病历记录吗？此操作不可恢复。</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                <a href="#" id="confirmDelete" class="btn btn-danger">确认删除</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 通知提示 -->
+<div class="notification success" style="display: none;">
+    <i class="bi bi-check-circle"></i>
+    <div>
+        <h6 class="mb-0">操作成功</h6>
+        <p class="mb-0 small">病历记录已删除</p>
+    </div>
+    <button class="close-btn"><i class="bi bi-x"></i></button>
+</div>
+
+{% block page_scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // 初始化工具提示
+        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+        var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl);
+        });
+        
+        // 删除按钮处理
+        const deleteButtons = document.querySelectorAll('.delete-btn');
+        const confirmDelete = document.getElementById('confirmDelete');
+        const deleteModal = new bootstrap.Modal(document.getElementById('deleteModal'));
+        
+        deleteButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                const id = this.getAttribute('data-id');
+                confirmDelete.href = `/patient-records/${id}/delete/`;
+                deleteModal.show();
+            });
+        });
+        
+        // 监听模态框隐藏事件，确保背景遮罩被完全清除
+        document.getElementById('deleteModal').addEventListener('hidden.bs.modal', function () {
+            // 移除可能残留的模态框背景
+            const modalBackdrops = document.querySelectorAll('.modal-backdrop');
+            modalBackdrops.forEach(backdrop => {
+                backdrop.remove();
+            });
+            
+            // 移除body上的modal-open类
+            document.body.classList.remove('modal-open');
+            document.body.style.overflow = '';
+            document.body.style.paddingRight = '';
+        });
+        
+        // 关闭通知
+        const closeBtn = document.querySelector('.notification .close-btn');
+        if (closeBtn) {
+            closeBtn.addEventListener('click', function() {
+                this.closest('.notification').style.display = 'none';
+            });
+        }
+    });
+</script>
+{% endblock %}
+{% endblock %} 
