@@ -1,0 +1,403 @@
+{% extends 'index.html' %}
+{% load static %}
+
+{% block breadcrumb %}
+<li class="breadcrumb-item"><a href="{% url 'segmentation:segmentation_history' %}">历史分割结果</a></li>
+<li class="breadcrumb-item active" aria-current="page">分割结果详情</li>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- 页面标题 -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="page-title d-flex align-items-center">
+            <i class="bi bi-grid-3x3 me-2"></i> 分割结果 
+            <span class="badge bg-primary ms-2" style="font-size: 0.8rem;">ID: {{ segmentation.patient_id }}</span>
+        </h2>
+        <div>
+            <a href="{% url 'segmentation:segmentation_home' %}" class="btn btn-outline-primary me-2">
+                <i class="bi bi-upload me-1"></i> 新分析
+            </a>
+            <a href="{% url 'segmentation:segmentation_history' %}" class="btn btn-outline-secondary">
+                <i class="bi bi-clock-history me-1"></i> 历史结果
+            </a>
+        </div>
+    </div>
+    
+    <!-- Tab导航 -->
+    <ul class="nav nav-tabs mb-4" id="resultTabs" role="tablist">
+        <li class="nav-item" role="presentation">
+            <button class="nav-link active" id="info-tab" data-bs-toggle="tab" data-bs-target="#info" type="button" role="tab" aria-controls="info" aria-selected="true">
+                <i class="bi bi-info-circle me-1"></i> 基本信息
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="result-tab" data-bs-toggle="tab" data-bs-target="#result" type="button" role="tab" aria-controls="result" aria-selected="false">
+                <i class="bi bi-grid-3x3 me-1"></i> 分割结果
+            </button>
+        </li>
+    </ul>
+    
+    <!-- Tab内容 -->
+    <div class="tab-content" id="resultTabsContent">
+        <!-- 基本信息 -->
+        <div class="tab-pane fade show active" id="info" role="tabpanel" aria-labelledby="info-tab">
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="card mb-4">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <span><i class="bi bi-info-circle me-2"></i> 基本信息</span>
+                        </div>
+                        <div class="card-body">
+                            <table class="table table-borderless">
+                                <tbody>
+                                    <tr>
+                                        <th width="40%">分割ID：</th>
+                                        <td>{{ segmentation.id }}</td>
+                                    </tr>
+                                    <tr>
+                                        <th>患者ID：</th>
+                                        <td>{{ segmentation.patient.patient_id }}</td>
+                                    </tr>
+                                    <tr>
+                                        <th>患者姓名：</th>
+                                        <td>{{ segmentation.patient.name }}</td>
+                                    </tr>
+                                    <tr>
+                                        <th>诊断结果：</th>
+                                        <td>
+                                            <span class="badge bg-danger">重度肺炎</span>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <th>创建时间：</th>
+                                        <td>{{ segmentation.created_at|date:"Y-m-d H:i" }}</td>
+                                    </tr>
+                                    <tr>
+                                        <th>更新时间：</th>
+                                        <td>{{ segmentation.updated_at|date:"Y-m-d H:i" }}</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-6">
+                    <div class="card mb-4">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <span><i class="bi bi-chat-left-text me-2"></i> 分割提示文本</span>
+                        </div>
+                        <div class="card-body">
+                            <p class="mb-0">{{ segmentation.prompt_text|default:"未提供分割提示文本" }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 分割结果 -->
+        <div class="tab-pane fade" id="result" role="tabpanel" aria-labelledby="result-tab">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <span><i class="bi bi-grid-3x3 me-2"></i> 分割结果对比</span>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <!-- 原始X光图像 -->
+                        <div class="col-md-6 mb-4 text-center">
+                            <h5 class="text-start mb-3">原始X光图像</h5>
+                            {% if segmentation.xray_image %}
+                                <div style="height: 400px; background-color: #f8f9fa; border-radius: 8px; display: flex; align-items: center; justify-content: center;">
+                                    <img src="{{ segmentation.xray_image.url }}" alt="X光图像" class="img-fluid" style="max-height: 140%; max-width: 150%; object-fit: contain; border-radius: 8px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); transform: scale(1.5);">
+                                </div>
+                            {% else %}
+                                <div class="no-image-placeholder rounded mb-2 d-flex align-items-center justify-content-center" style="height: 400px; background-color: #f8f9fa;">
+                                    <div class="text-center">
+                                        <i class="bi bi-image text-muted" style="font-size: 4rem;"></i>
+                                        <p class="mt-3 text-muted">未找到X光图像</p>
+                                    </div>
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <!-- 分割结果 -->
+                        <div class="col-md-6 mb-4 text-center">
+                            <h5 class="text-start mb-3">感染区域分割结果</h5>
+                            {% if segmentation.segmentation_image %}
+                                <div style="height: 400px; background-color: #f8f9fa; border-radius: 8px; display: flex; align-items: center; justify-content: center;">
+                                    <img src="{{ segmentation.segmentation_image.url }}" alt="分割结果" class="img-fluid" style="max-height: 150%; max-width: 150%; object-fit: contain; border-radius: 8px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); transform: scale(1.5);">
+                                </div>
+                            {% else %}
+                                <div class="no-image-placeholder rounded mb-2 d-flex align-items-center justify-content-center" style="height: 400px; background-color: #f8f9fa;">
+                                    <div class="text-center">
+                                        <i class="bi bi-grid-3x3 text-muted" style="font-size: 4rem;"></i>
+                                        <p class="mt-3 text-muted">未找到分割结果图像</p>
+                                    </div>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 操作按钮 -->
+    <div class="mt-4 text-end">
+        <button type="button" class="btn btn-primary me-2" onclick="window.print()">
+            <i class="bi bi-printer me-1"></i> 打印
+        </button>
+        {% if segmentation.segmentation_image %}
+            <a href="{{ segmentation.segmentation_image.url }}" download class="btn btn-outline-primary me-2">
+                <i class="bi bi-download me-1"></i> 下载分割结果
+            </a>
+        {% endif %}
+        <button type="button" class="btn btn-success" id="openDeepseekChat">
+            <i class="bi bi-robot me-1"></i> 获取AI治疗建议
+        </button>
+    </div>
+</div>
+
+<!-- DeepSeek对话模态框 -->
+<div class="modal fade" id="deepseekChatModal" tabindex="-1" aria-labelledby="deepseekChatModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deepseekChatModalLabel">
+                    <i class="bi bi-robot me-2"></i> DeepSeek AI 治疗助手
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="chat-container" style="height: 400px; overflow-y: auto; border: 1px solid #eee; border-radius: 6px; padding: 15px; margin-bottom: 15px;">
+                    <div id="chat-messages">
+                        <div class="d-flex mb-3">
+                            <div style="width: 40px; height: 40px; background-color: #2B5DE0; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 10px;">
+                                <i class="bi bi-robot"></i>
+                            </div>
+                            <div class="message-bubble p-3" style="background-color: #f0f2f5; border-radius: 10px; max-width: 80%;">
+                                <p class="mb-0">您好，我是DeepSeek AI助手。我已经获取了患者的X光图像和感染区域分割结果，可以根据这些图像为您提供专业分析和治疗建议。请告诉我您想了解什么？例如：
+                                <br>- 请分析这个肺炎分割结果的严重程度
+                                <br>- 根据分割结果，建议采取什么治疗方案？
+                                <br>- 这种感染分布情况通常会有什么并发症？</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="input-group">
+                    <input type="text" id="user-input" class="form-control" placeholder="输入您的问题..." aria-label="用户输入">
+                    <button class="btn btn-primary" type="button" id="send-message">
+                        <i class="bi bi-send"></i> 发送
+                    </button>
+                </div>
+                <div class="form-text text-muted mt-2">
+                    <small>提示：AI助手已自动分析了患者X光图像和分割结果，您可以询问关于感染区域特征、严重程度、治疗方案或康复建议等。</small>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">关闭</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block page_scripts %}
+<script>
+    // 激活Bootstrap标签页
+    document.addEventListener('DOMContentLoaded', function() {
+        // 从URL获取标签页参数
+        const urlParams = new URLSearchParams(window.location.search);
+        const tab = urlParams.get('tab');
+        
+        if (tab === 'result') {
+            const resultTab = document.querySelector('#result-tab');
+            if (resultTab) {
+                const tabInstance = new bootstrap.Tab(resultTab);
+                tabInstance.show();
+            }
+        }
+
+        // DeepSeek对话相关逻辑
+        const openChatBtn = document.getElementById('openDeepseekChat');
+        const chatModal = new bootstrap.Modal(document.getElementById('deepseekChatModal'));
+        const sendBtn = document.getElementById('send-message');
+        const userInput = document.getElementById('user-input');
+        const chatMessages = document.getElementById('chat-messages');
+
+        // 打开对话框
+        openChatBtn.addEventListener('click', function() {
+            chatModal.show();
+        });
+        
+        // 监听模态框隐藏事件，确保背景遮罩被完全清除
+        document.getElementById('deepseekChatModal').addEventListener('hidden.bs.modal', function () {
+            // 移除可能残留的模态框背景
+            const modalBackdrops = document.querySelectorAll('.modal-backdrop');
+            modalBackdrops.forEach(backdrop => {
+                backdrop.remove();
+            });
+            
+            // 移除body上的modal-open类
+            document.body.classList.remove('modal-open');
+            document.body.style.overflow = '';
+            document.body.style.paddingRight = '';
+        });
+
+        // 发送消息
+        sendBtn.addEventListener('click', sendMessage);
+        userInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                sendMessage();
+            }
+        });
+
+        function sendMessage() {
+            const message = userInput.value.trim();
+            if (!message) return;
+
+            // 添加用户消息到对话框
+            appendUserMessage(message);
+            userInput.value = '';
+
+            // 显示加载状态
+            const loadingMessage = appendAssistantMessage('<div class="d-flex align-items-center"><div class="spinner-border spinner-border-sm me-2" role="status"></div>思考中...</div>');
+            
+            // 准备患者和分割结果信息
+            const patientInfo = {
+                id: "{{ segmentation.patient.patient_id }}",
+                name: "{{ segmentation.patient.name }}",
+                prompt: "{{ segmentation.prompt_text|default:'未提供分割提示文本' }}"
+            };
+
+            // 调用DeepSeek API
+            fetchDeepseekResponse(message, patientInfo)
+                .then(response => {
+                    // 移除加载消息
+                    loadingMessage.remove();
+                    // 添加AI回复
+                    appendAssistantMessage(response);
+                })
+                .catch(error => {
+                    // 移除加载消息
+                    loadingMessage.remove();
+                    // 显示错误消息
+                    appendAssistantMessage('抱歉，请求过程中出现错误，请稍后再试。');
+                    console.error('DeepSeek API错误:', error);
+                });
+        }
+
+        function appendUserMessage(text) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = 'd-flex justify-content-end mb-3';
+            messageDiv.innerHTML = `
+                <div class="message-bubble p-3" style="background-color: #dcf8c6; border-radius: 10px; max-width: 80%;">
+                    <p class="mb-0">${escapeHtml(text)}</p>
+                </div>
+                <div style="width: 40px; height: 40px; background-color: #41B883; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-left: 10px;">
+                    <i class="bi bi-person"></i>
+                </div>
+            `;
+            chatMessages.appendChild(messageDiv);
+            scrollToBottom();
+            return messageDiv;
+        }
+
+        function appendAssistantMessage(text) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = 'd-flex mb-3';
+            messageDiv.innerHTML = `
+                <div style="width: 40px; height: 40px; background-color: #2B5DE0; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 10px;">
+                    <i class="bi bi-robot"></i>
+                </div>
+                <div class="message-bubble p-3" style="background-color: #f0f2f5; border-radius: 10px; max-width: 80%;">
+                    <p class="mb-0">${text}</p>
+                </div>
+            `;
+            chatMessages.appendChild(messageDiv);
+            scrollToBottom();
+            return messageDiv;
+        }
+
+        function scrollToBottom() {
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        function escapeHtml(unsafe) {
+            return unsafe
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
+        }
+
+        async function fetchDeepseekResponse(userMessage, patientInfo) {
+            try {
+                // 获取X光图像和分割结果图像的URL
+                const xrayImageUrl = "{{ segmentation.xray_image.url }}";
+                const segmentationImageUrl = "{{ segmentation.segmentation_image.url }}";
+                const currentUrl = window.location.origin; // 获取当前域名
+                const absoluteXrayUrl = currentUrl + xrayImageUrl;
+                const absoluteSegmentationUrl = currentUrl + segmentationImageUrl;
+                
+                // 构建系统消息，包含患者信息、分割结果和图像URL
+                const systemMessage = `你是一位专业的肺炎影像学分析和治疗顾问。你正在分析一位患者ID为${patientInfo.id}、姓名为${patientInfo.name}的X光胸片分割结果。
+
+患者X光原始图像URL: ${absoluteXrayUrl}
+感染区域分割结果图像URL: ${absoluteSegmentationUrl}
+感染区域信息为: "${patientInfo.prompt}"
+
+请根据用户提供的问题和我提供的两张图像URL(原始X光片和分割结果图)，分析患者病情并提供专业的诊断和治疗建议。回答要简洁、专业且具有实用性，可以包括:
+1. 肺炎感染区域和严重程度评估
+2. 可能的病理分析
+3. 治疗方案建议
+4. 康复建议和注意事项
+
+当用户询问时，你可以分析图像显示的感染区域特征，并结合医学知识给出合理建议。`;
+
+                const response = await fetch('/segmentation/api/deepseek-chat/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': getCookie('csrftoken')
+                    },
+                    body: JSON.stringify({
+                        systemMessage: systemMessage,
+                        userMessage: userMessage,
+                        xrayImageUrl: absoluteXrayUrl,
+                        segmentationImageUrl: absoluteSegmentationUrl
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error('API请求失败');
+                }
+
+                const data = await response.json();
+                return data.response;
+            } catch (error) {
+                console.error('Error:', error);
+                throw error;
+            }
+        }
+
+        // 获取CSRF Token
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+    });
+</script>
+{% endblock %} 

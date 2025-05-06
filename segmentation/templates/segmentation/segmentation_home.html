@@ -1,0 +1,212 @@
+{% extends 'index.html' %}
+{% load static %}
+
+{% block breadcrumb %}
+<li class="breadcrumb-item active" aria-current="page">感染区域分割</li>
+{% endblock %}
+
+{% block content %}
+<style>
+    /* 患者卡片动画效果 */
+    .patient-card {
+        transition: all 0.25s cubic-bezier(0.165, 0.84, 0.44, 1);
+        border: 1px solid rgba(0,0,0,0.125);
+    }
+    
+    .patient-card:hover {
+        transform: translateY(-5px) scale(1.01);
+        border-color: #2B5DE0;
+        box-shadow: 0 5px 15px rgba(43, 93, 224, 0.1);
+    }
+    
+    .patient-card .card-title {
+        transition: color 0.25s ease;
+    }
+    
+    .patient-card:hover .card-title {
+        color: #2B5DE0;
+    }
+    
+    .patient-card .btn-primary {
+        transition: all 0.25s ease;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .patient-card:hover .btn-primary {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+    
+    .patient-card .btn-primary::after {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 5px;
+        height: 5px;
+        background: rgba(255, 255, 255, 0.5);
+        opacity: 0;
+        border-radius: 100%;
+        transform: scale(1, 1) translate(-50%);
+        transform-origin: 50% 50%;
+    }
+    
+    .patient-card .btn-primary:active::after {
+        opacity: 0.3;
+        transform: scale(20, 20) translate(-50%);
+        transition: all 0.25s ease-out;
+    }
+    
+    .patient-card .badge {
+        transition: all 0.25s ease;
+    }
+    
+    .patient-card:hover .badge {
+        transform: scale(1.05);
+    }
+    
+    /* 功能介绍卡片样式增强 */
+    .card-header {
+        background-color: rgba(0, 0, 0, 0.03);
+        transition: background-color 0.25s ease;
+    }
+    
+    .card:hover .card-header {
+        background-color: rgba(43, 93, 224, 0.05);
+    }
+    
+    /* 搜索表单细节优化 */
+    .form-control:focus {
+        border-color: #2B5DE0;
+        box-shadow: 0 0 0 0.25rem rgba(43, 93, 224, 0.25);
+    }
+</style>
+
+<div class="container-fluid">
+    <!-- 页面标题 -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="page-title">
+            <i class="bi bi-grid-3x3 me-2"></i> 感染区域分割
+        </h2>
+    </div>
+    
+    <!-- 功能简介 -->
+    <div class="card mb-4">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <span><i class="bi bi-info-circle me-2"></i> 功能介绍</span>
+        </div>
+        <div class="card-body" style="border-radius: 15px;box-shadow: -1px 2px 4px rgba(0, 0, 0, 0.05);">
+            <p>肺炎感染区域分割系统可以帮助医生快速分析X光图像，自动识别并标记可能的感染区域，辅助临床诊断与治疗决策。该功能仅适用于被诊断为<b>重度肺炎</b>的患者。</p>
+            <div class="row mt-4">
+                <div class="col-md-4">
+                    <div class="d-flex">
+                        <div class="me-3 text-primary" style="font-size: 24px;">
+                            <i class="bi bi-people"></i>
+                        </div>
+                        <div>
+                            <h5>选择患者</h5>
+                            <p class="mb-0">从重度肺炎患者列表中选择需要分割分析的患者</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="d-flex">
+                        <div class="me-3 text-primary" style="font-size: 24px;">
+                            <i class="bi bi-cloud-upload"></i>
+                        </div>
+                        <div>
+                            <h5>X光图像上传</h5>
+                            <p class="mb-0">上传患者的X光图像，输入医生的分割提示</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="d-flex">
+                        <div class="me-3 text-primary" style="font-size: 24px;">
+                            <i class="bi bi-grid-3x3"></i>
+                        </div>
+                        <div>
+                            <h5>查看分割结果</h5>
+                            <p class="mb-0">系统自动标记感染区域，生成分割结果</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 搜索区域 -->
+    <div class="card mb-4">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <span><i class="bi bi-search me-2"></i> 搜索重度肺炎患者</span>
+        </div>
+        <div class="card-body" style="border-radius: 15px;box-shadow: -1px 2px 4px rgba(0, 0, 0, 0.05);">
+            <form method="get" class="row g-3">
+                <div class="col-md-3">
+                    <label for="search_id" class="form-label">患者ID</label>
+                    <input type="text" class="form-control" id="search_id" name="search_id" placeholder="输入患者ID">
+                </div>
+                <div class="col-md-3">
+                    <label for="search_name" class="form-label">姓名</label>
+                    <input type="text" class="form-control" id="search_name" name="search_name" placeholder="输入患者姓名">
+                </div>
+                <div class="col-md-3">
+                    <label for="search_date" class="form-label">诊断日期</label>
+                    <input type="date" class="form-control" id="search_date" name="search_date">
+                </div>
+                <div class="col-md-3 d-flex align-items-end">
+                    <div class="d-grid gap-2 w-100">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-search me-1"></i> 搜索
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <!-- 患者列表卡片 -->
+    <div class="card mb-4">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <span><i class="bi bi-people me-2"></i> 重度肺炎患者</span>
+            <span class="badge bg-info">共 {{ patients_count }} 位患者</span>
+        </div>
+        <div class="card-body">
+            <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+                {% if severe_diagnoses %}
+                    {% for diagnosis in severe_diagnoses %}
+                    <!-- 患者卡片 -->
+                    <div class="col">
+                        <div class="card h-100 patient-card">
+                            <div class="card-body" style="border-radius: 15px;box-shadow: -1px 2px 4px rgba(0, 0, 0, 0.05);">
+                                <div class="d-flex justify-content-between align-items-start mb-3">
+                                    <h5 class="card-title">{{ diagnosis.patient.name }} <small class="text-muted">({% if diagnosis.patient.clinical_features %}{{ diagnosis.patient.clinical_features.age }}{% else %}{{ diagnosis.patient.get_age }}{% endif %}岁)</small></h5>
+                                    <span class="badge bg-light text-dark">ID: {{ diagnosis.patient.patient_id }}</span>
+                                </div>
+                                <div class="card-info mb-3">
+                                    <p class="mb-1"><strong>诊断结果:</strong> <span class="badge bg-danger">重度肺炎</span></p>
+                                    <p class="mb-1"><strong>诊断时间:</strong> {{ diagnosis.created_at|date:"Y-m-d H:i" }}</p>
+                                    <p class="mb-1"><strong>置信度:</strong> {{ diagnosis.get_confidence_percentage|default:"0%" }}</p>
+                                    <p class="mb-1"><strong>联系方式:</strong> {{ diagnosis.patient.phone|default:"未提供" }}</p>
+                                </div>
+                                <a href="{% url 'segmentation:upload_xray_with_patient' patient_id=diagnosis.patient.patient_id %}" class="btn btn-primary w-100" style="border-radius: 10px;">
+                                    <i class="bi bi-grid-3x3 me-1"></i> 感染区域分割
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="col-12 text-center py-5">
+                        <div class="alert alert-info">
+                            <i class="bi bi-info-circle me-2"></i> 暂无重度肺炎患者记录
+                        </div>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %} 

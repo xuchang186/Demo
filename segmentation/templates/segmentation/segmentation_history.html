@@ -1,0 +1,269 @@
+{% extends 'index.html' %}
+{% load static %}
+
+{% block breadcrumb %}
+<li class="breadcrumb-item active" aria-current="page">历史分割结果</li>
+{% endblock %}
+
+{% block content %}
+<style>
+    /* 卡片动画效果 */
+    .card {
+        transition: all 0.25s cubic-bezier(0.165, 0.84, 0.44, 1);
+    }
+    
+    .card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 8px 15px rgba(0, 0, 0, 0.08);
+    }
+    
+    /* 图片区域动画效果 */
+    .img-fluid, .no-image-placeholder {
+        transition: all 0.25s ease;
+    }
+    
+    .card:hover .img-fluid, .card:hover .no-image-placeholder {
+        transform: scale(1.02);
+    }
+    
+    /* 按钮动画效果 */
+    .btn {
+        transition: all 0.25s ease;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .btn:hover {
+        transform: translateY(-2px);
+    }
+    
+    /* 按钮点击波纹效果 */
+    .btn::after {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 5px;
+        height: 5px;
+        background: rgba(255, 255, 255, 0.5);
+        opacity: 0;
+        border-radius: 100%;
+        transform: scale(1, 1) translate(-50%);
+        transform-origin: 50% 50%;
+    }
+    
+    .btn:active::after {
+        opacity: 0.3;
+        transform: scale(20, 20) translate(-50%);
+        transition: all 0.25s ease-out;
+    }
+    
+    /* 搜索表单增强 */
+    .form-control, .form-select {
+        transition: border-color 0.25s ease, box-shadow 0.25s ease;
+    }
+    
+    .form-control:focus, .form-select:focus {
+        border-color: #2B5DE0;
+        box-shadow: 0 0 0 0.2rem rgba(43, 93, 224, 0.25);
+    }
+    
+    /* 徽章动画效果 */
+    .badge {
+        transition: all 0.25s ease;
+    }
+    
+    .card:hover .badge {
+        transform: scale(1.05);
+    }
+    
+    /* 分页动画效果 */
+    .page-link {
+        transition: all 0.25s ease;
+    }
+    
+    .page-link:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    }
+    
+    /* 入场动画 */
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translate3d(0, 10px, 0);
+        }
+        to {
+            opacity: 1;
+            transform: translate3d(0, 0, 0);
+        }
+    }
+    
+    .col-md-6 {
+        animation: fadeInUp 0.3s ease-out forwards;
+    }
+    
+    /* 无图片占位符动画 */
+    .no-image-placeholder i {
+        transition: all 0.25s ease;
+    }
+    
+    .card:hover .no-image-placeholder i {
+        transform: scale(1.1);
+        color: #2B5DE0;
+    }
+    
+    /* 根据卡片位置设置不同的延迟 */
+    .col-md-6:nth-child(3n+1) {
+        animation-delay: 0.05s;
+    }
+    
+    .col-md-6:nth-child(3n+2) {
+        animation-delay: 0.1s;
+    }
+    
+    .col-md-6:nth-child(3n+3) {
+        animation-delay: 0.15s;
+    }
+    
+    /* 减少动画，适配用户偏好 */
+    @media (prefers-reduced-motion: reduce) {
+        .col-md-6 {
+            animation: none;
+        }
+        
+        .card:hover, .btn:hover, .img-fluid:hover, .no-image-placeholder:hover, .badge:hover {
+            transform: none;
+        }
+    }
+</style>
+
+<div class="container-fluid">
+    <!-- 页面标题 -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="page-title">
+            <i class="bi bi-clock-history me-2"></i> 历史分割结果
+        </h2>
+        <div>
+            <a href="{% url 'segmentation:segmentation_home' %}" class="btn btn-primary">
+                <i class="bi bi-upload me-1"></i> 新增分析
+            </a>
+        </div>
+    </div>
+    
+    <!-- 搜索筛选区域 -->
+    <div class="card mb-4">
+        <div class="card-body" style="border-radius: 15px;box-shadow: -1px 2px 4px #e7e6e6;">
+            <form class="row g-3" method="get">
+                <div class="col-md-4">
+                    <label for="patientId" class="form-label">患者ID</label>
+                    <input type="text" class="form-control" id="patientId" name="patient_id" placeholder="输入患者ID">
+                </div>
+                <div class="col-md-4">
+                    <label for="dateRange" class="form-label">日期范围</label>
+                    <select class="form-select" id="dateRange" name="date_range">
+                        <option selected value="">全部时间</option>
+                        <option value="week">最近一周</option>
+                        <option value="month">最近一月</option>
+                        <option value="three_months">最近三月</option>
+                    </select>
+                </div>
+                <div class="col-md-4 d-flex align-items-end">
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="bi bi-search me-1"></i> 搜索
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <!-- 历史结果卡片 -->
+    <div class="row">
+        {% if segmentation_results %}
+            {% for result in segmentation_results %}
+                <div class="col-md-6 col-xl-4 mb-4">
+                    <div class="card h-100">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <span>
+                                <span class="badge bg-danger">重度肺炎</span>
+                            </span>
+                            <span class="text-muted small">患者编号：{{ result.patient.patient_id }}</span>
+                        </div>
+                        <div class="card-body" style="border-radius: 12px;box-shadow: -1px 2px 4px #e7e6e6;">
+                            <div class="row">
+                                <div class="col-md-5">
+                                    {% if result.xray_image %}
+                                        <img src="{{ result.xray_image.url }}" alt="X光图像" class="img-fluid rounded mb-3" style="height: 150px; width: 100%; object-fit: contain; background-color: #f8f9fa;">
+                                    {% else %}
+                                        <div class="no-image-placeholder rounded mb-3 d-flex align-items-center justify-content-center" style="height: 150px; background-color: #f8f9fa;">
+                                            <i class="bi bi-image text-muted" style="font-size: 2rem;"></i>
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                <div class="col-md-7">
+                                    {% if result.segmentation_image %}
+                                        <img src="{{ result.segmentation_image.url }}" alt="分割结果" class="img-fluid rounded mb-3" style="height: 150px; width: 100%; object-fit: contain; background-color: #f8f9fa;">
+                                    {% else %}
+                                        <div class="no-image-placeholder rounded mb-3 d-flex align-items-center justify-content-center" style="height: 150px; background-color: #f8f9fa;">
+                                            <i class="bi bi-grid-3x3 text-muted" style="font-size: 2rem;"></i>
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="d-flex justify-content-between align-items-center mt-2">
+                                <span class="text-muted"><i class="bi bi-calendar me-1"></i> {{ result.created_at|date:"Y/m/d" }}</span>
+                                <div>
+                                    <a href="{% url 'segmentation:segmentation_result' result.id %}" class="btn btn-sm btn-outline-primary">
+                                        <i class="bi bi-eye me-1"></i> 详细信息
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        {% else %}
+            <div class="col-12">
+                <div class="alert alert-info">
+                    <i class="bi bi-info-circle me-2"></i> 暂无历史分割结果数据
+                </div>
+            </div>
+        {% endif %}
+    </div>
+    
+    <!-- 分页 -->
+    {% if segmentation_results and segmentation_results.has_other_pages %}
+        <nav aria-label="Page navigation" class="mt-4">
+            <ul class="pagination justify-content-center">
+                {% if segmentation_results.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ segmentation_results.previous_page_number }}{% if request.GET.patient_id %}&patient_id={{ request.GET.patient_id }}{% endif %}{% if request.GET.date_range %}&date_range={{ request.GET.date_range }}{% endif %}" tabindex="-1">上一页</a>
+                    </li>
+                {% else %}
+                    <li class="page-item disabled">
+                        <a class="page-link" href="#" tabindex="-1" aria-disabled="true">上一页</a>
+                    </li>
+                {% endif %}
+                
+                {% for i in segmentation_results.paginator.page_range %}
+                    {% if segmentation_results.number == i %}
+                        <li class="page-item active"><a class="page-link" href="#">{{ i }}</a></li>
+                    {% else %}
+                        <li class="page-item"><a class="page-link" href="?page={{ i }}{% if request.GET.patient_id %}&patient_id={{ request.GET.patient_id }}{% endif %}{% if request.GET.date_range %}&date_range={{ request.GET.date_range }}{% endif %}">{{ i }}</a></li>
+                    {% endif %}
+                {% endfor %}
+                
+                {% if segmentation_results.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ segmentation_results.next_page_number }}{% if request.GET.patient_id %}&patient_id={{ request.GET.patient_id }}{% endif %}{% if request.GET.date_range %}&date_range={{ request.GET.date_range }}{% endif %}">下一页</a>
+                    </li>
+                {% else %}
+                    <li class="page-item disabled">
+                        <a class="page-link" href="#" aria-disabled="true">下一页</a>
+                    </li>
+                {% endif %}
+            </ul>
+        </nav>
+    {% endif %}
+</div>
+{% endblock %} 
