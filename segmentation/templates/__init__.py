@@ -1,1 +1,0 @@
-# segmentation应用初始化文件 
