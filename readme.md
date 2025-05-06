@@ -26,21 +26,6 @@
    - 状态反馈系统（操作确认、成功通知）
    - 表单优化和搜索体验改进
 
-## 功能特点
-
-1. **患者管理系统**
-   - 患者基础信息管理（ID、姓名、性别、年龄等）
-   - 临床特征记录（128项临床指标，含血常规、生化指标等）
-   - 就诊记录管理
-
-2. **智能肺炎诊断系统**
-   - CT图像上传与分析
-   - 结合临床特征的肺炎等级诊断（无肺炎、轻度肺炎、重度肺炎）
-
-3. **肺炎感染区域分割系统**
-   - X光图像上传与处理
-   - 肺炎感染区域自动分割
-
 ## 技术栈
 
 - 前端：HTML、CSS、JavaScript、Bootstrap 5
@@ -176,90 +161,6 @@ python manage.py runserver
 - 分割结果：展示分割结果，标记感染区域
 - 历史分割结果：浏览和管理历史分割记录
 
-### 前端
-
-#### 静态文件
-
-CSS结构：
-- **css/main.css**: 集中导入所有CSS模块
-- **css/common.css**: 公共样式和变量定义
-- **css/patient_list.css**: 患者列表页面样式
-- **css/diagnosis_home.css**: 诊断首页样式
-- **css/upload_ct.css**: CT上传页面样式
-- **css/diagnosis_history.css**: 诊断历史页面样式
-- **css/patient_diagnosis_history.css**: 患者诊断历史页面样式
-- **css/segmentation_home.css**: 分割首页样式
-
-JavaScript结构：
-- **js/main.js**: 主JS文件，导入和初始化其他模块
-- **js/common.js**: 通用功能，如导航激活、移动端适配等
-- **js/notifications.js**: 通知系统实现
-- **js/forms.js**: 表单验证和处理
-- **js/modal.js**: 模态框和确认对话框功能
-- **js/upload.js**: 文件上传处理
-
-#### 模板
-
-- **templates/index.html**: 
-  - 主布局模板，定义整体页面结构
-  - 左侧导航栏实现
-  - 右侧内容区框架
-  - 自适应移动端视图
-
-### 后端
-
-#### URL配置
-
-- **Demo/urls.py**: 
-  - 主URL配置文件
-  - 连接各个应用的URL配置
-  - 处理静态和媒体文件URL
-
-- **patient_records/urls.py**:
-  - 患者管理相关的URL配置
-  - 包含患者列表、详情、编辑等路径
-
-- **diagnosis/urls.py**:
-  - 肺炎诊断相关的URL配置
-  - 包含诊断操作、结果显示等路径
-
-- **segmentation/urls.py**:
-  - 感染区域分割相关的URL配置
-  - 包含图像上传、分割结果等路径
-
-### 色彩方案
-
-- **color.txt**:
-  - 定义系统全局色彩变量
-  - 包含主题色、文本色、背景色和功能色
-  - 为医疗系统设计的专业配色方案
-
-## 页面结构
-
-- 首页: `/` - 系统主页和功能导航
-- 登录页: `/login/` - 用户登录界面
-- 退出登录: `/logout/` - 退出登录
-
-### 患者管理
-- 患者列表: `/patient-records/` - 患者管理列表
-- 新增患者: `/patient-records/add/` - 添加新患者
-- 编辑患者: `/patient-records/edit/<id>/` - 编辑患者信息
-- 患者详情: `/patient-records/detail/<id>/` - 查看患者详细信息
-
-### 肺炎诊断
-- 诊断主页: `/diagnosis/` - 肺炎诊断功能主页
-- CT图像上传: `/diagnosis/upload-ct/` - 上传CT图像页面
-- 诊断结果: `/diagnosis/result/<id>/` - 查看诊断结果
-- 诊断历史: `/diagnosis/history/` - 浏览诊断历史记录
-- 患者诊断历史: `/diagnosis/history/<patient_id>/` - 查看指定患者的诊断历史
-
-### 感染区域分割
-- 分割主页: `/segmentation/` - 感染区域分割功能主页
-- 图像上传: `/segmentation/upload-xray/` - 上传X光图像页面
-- 分割结果: `/segmentation/result/<id>/` - 查看分割结果
-- 历史分割结果: `/segmentation/history/` - 浏览历史分割结果
-- 分割结果详情: `/segmentation/result/<id>/` - 查看分割结果详情
-
 ## URL路径结构
 
 ```
@@ -288,20 +189,6 @@ JavaScript结构：
 
 /admin/                     # 管理员界面
 ```
-### 技术栈
-
-- **前端**：HTML, CSS, JavaScript, Bootstrap
-- **后端**：Python, Django
-- **数据库**：MySQL
-- **AI模型**：深度学习模型用于图像分析和多模态诊断
-
-### 系统页面
-
-1. **诊断首页**：展示患者列表，可按姓名或ID搜索患者，选择患者进行诊断。
-2. **CT上传页面**：显示患者基本信息和临床特征，上传CT图像并启动诊断流程。
-3. **诊断结果页面**：展示诊断结果、概率分布、CT图像分析和临床建议。
-4. **诊断历史页面**：查看历史诊断记录，支持按患者和诊断结果筛选。
-
 ### 使用流程
 
 1. 在诊断首页选择患者或搜索特定患者。
