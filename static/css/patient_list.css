@@ -1,0 +1,403 @@
+/* patient_list.css - 病历列表页面样式 */
+
+/* -----------------------------
+ * 搜索区域样式 
+ * ----------------------------- */
+.search-area {
+    background-color: var(--bg-white);
+    border-radius: var(--el-border-radius-base);
+    padding: 24px;
+    margin-bottom: 25px;
+    box-shadow: var(--el-box-shadow-light);
+    border: 1px solid var(--el-border-color-light);
+    animation: fadeIn 0.5s ease-out;
+    position: relative;
+    overflow: hidden;
+}
+
+/* 添加搜索区域背景装饰 */
+.search-area::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 150px;
+    height: 150px;
+    background: linear-gradient(45deg, transparent, rgba(43, 93, 224, 0.05));
+    border-radius: 0 0 0 100%;
+    z-index: 0;
+}
+
+.search-area .form-label {
+    color: var(--text-secondary);
+    font-weight: 500;
+    margin-bottom: 8px;
+}
+
+.search-area .form-control {
+    border-color: var(--border-color);
+    padding: 12px 15px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.02);
+    transition: all 0.3s ease;
+}
+
+.search-area .form-control:focus {
+    border-color: var(--secondary-color);
+    box-shadow: 0 0 0 3px rgba(74, 140, 255, 0.2);
+    transform: translateY(-2px);
+}
+
+.search-area .btn {
+    height: 45px;
+    transition: all 0.3s ease;
+}
+
+.search-area .btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* -----------------------------
+ * 表格样式
+ * ----------------------------- */
+.table-container {
+    background-color: var(--bg-white);
+    border-radius: var(--el-border-radius-base);
+    box-shadow: var(--el-box-shadow-light);
+    border: 1px solid var(--el-border-color-light);
+    overflow: hidden;
+    animation: slideInUp 0.5s ease-out;
+}
+
+.table {
+    margin-bottom: 0;
+    border-collapse: separate;
+    border-spacing: 0;
+}
+
+.table thead th {
+    background: linear-gradient(to right, rgba(43, 93, 224, 0.08), rgba(43, 93, 224, 0.02));
+    color: var(--text-primary);
+    font-weight: 500;
+    border-top: none;
+    padding: 16px;
+    vertical-align: middle;
+}
+
+.table tbody td {
+    padding: 16px;
+    vertical-align: middle;
+    border-color: var(--el-border-color-lighter);
+    color: var(--text-regular);
+    transition: all 0.2s ease;
+}
+
+.table tbody tr {
+    transition: all 0.3s ease;
+}
+
+.table tbody tr:hover {
+    background-color: var(--el-color-primary-light-9);
+    transform: translateX(5px) scale(1.01);
+    position: relative;
+    z-index: 1;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.table-card {
+    border-radius: var(--el-border-radius-base);
+    box-shadow: var(--el-box-shadow-light);
+    overflow: hidden;
+    margin-bottom: 25px;
+    border: 1px solid var(--el-border-color-light);
+}
+
+.table-card .card-header {
+    background: linear-gradient(to right, rgba(43, 93, 224, 0.08), rgba(255, 255, 255, 0));
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--el-border-color-light);
+    color: var(--text-primary);
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.table-card .card-header i {
+    color: var(--el-color-primary);
+    margin-right: 8px;
+}
+
+/* -----------------------------
+ * 操作按钮样式
+ * ----------------------------- */
+.action-btns {
+    display: flex;
+    gap: 6px;
+    justify-content: center;
+}
+
+.action-btns .btn {
+    padding: 5px 10px;
+    font-size: 0.875rem;
+    border-radius: var(--el-border-radius-small);
+    transition: all 0.2s ease;
+}
+
+.action-btns .btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.action-btns .btn-outline-primary:hover {
+    background-color: var(--el-color-primary);
+    color: white;
+}
+
+.action-btns .btn-outline-secondary:hover {
+    background-color: var(--el-color-info);
+    color: white;
+}
+
+.action-btns .btn-outline-danger:hover {
+    background-color: var(--el-color-danger);
+    color: white;
+}
+
+/* -----------------------------
+ * 分页样式
+ * ----------------------------- */
+.pagination {
+    margin: 25px 0 0;
+    justify-content: center;
+}
+
+.pagination .page-item .page-link {
+    color: var(--text-regular);
+    background-color: var(--bg-white);
+    border-color: var(--border-color);
+    padding: 10px 15px;
+    min-width: 40px;
+    text-align: center;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.03);
+    transition: all 0.3s ease;
+}
+
+.pagination .page-item .page-link:hover {
+    background-color: var(--el-color-primary-light-9);
+    color: var(--el-color-primary);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    z-index: 10;
+    position: relative;
+}
+
+.pagination .page-item.active .page-link {
+    background: linear-gradient(135deg, #2B5DE0 0%, #4A8CFF 100%);
+    border-color: var(--primary-color);
+    color: white;
+    box-shadow: 0 4px 8px rgba(43, 93, 224, 0.3);
+}
+
+.pagination .page-item.disabled .page-link {
+    color: var(--text-secondary);
+    background-color: var(--bg-hover);
+    border-color: var(--border-color);
+}
+
+/* -----------------------------
+ * 删除确认模态框样式
+ * ----------------------------- */
+.modal-content {
+    border: none;
+    border-radius: var(--el-border-radius-base);
+    box-shadow: var(--el-box-shadow-dark);
+    overflow: hidden;
+}
+
+.modal-header {
+    border-bottom: 1px solid var(--el-border-color-light);
+    background: linear-gradient(to right, rgba(43, 93, 224, 0.05), rgba(255, 255, 255, 0));
+    padding: 16px 20px;
+}
+
+.modal-header .modal-title {
+    color: var(--text-primary);
+    font-weight: 500;
+}
+
+.modal-body {
+    padding: 20px;
+}
+
+.modal-footer {
+    border-top: 1px solid var(--el-border-color-light);
+    padding: 16px 20px;
+    background-color: rgba(0, 0, 0, 0.02);
+}
+
+.modal-footer .btn {
+    padding: 8px 20px;
+    transition: all 0.3s ease;
+}
+
+.modal-footer .btn:hover {
+    transform: translateY(-2px);
+}
+
+.modal-backdrop.show {
+    opacity: 0.7;
+}
+
+/* -----------------------------
+ * 病历列表特有样式
+ * ----------------------------- */
+/* 患者ID标签 */
+.badge.bg-light.text-dark {
+    background: linear-gradient(to right, rgba(43, 93, 224, 0.1), rgba(255, 255, 255, 0.1)) !important;
+    color: var(--text-primary) !important;
+    font-weight: 500;
+    padding: 6px 10px;
+    border-radius: 6px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+    border: 1px solid rgba(43, 93, 224, 0.1);
+}
+
+/* 状态标签 */
+.status-badge {
+    display: inline-block;
+    padding: 5px 10px;
+    border-radius: 50px;
+    font-weight: 500;
+    font-size: 0.85rem;
+    text-align: center;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+    transition: all 0.3s ease;
+}
+
+.status-badge:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.status-normal {
+    background-color: rgba(103, 194, 58, 0.1);
+    color: var(--success-color);
+    border: 1px solid rgba(103, 194, 58, 0.2);
+}
+
+.status-warning {
+    background-color: rgba(230, 162, 60, 0.1);
+    color: var(--warning-color);
+    border: 1px solid rgba(230, 162, 60, 0.2);
+}
+
+.status-danger {
+    background-color: rgba(245, 108, 108, 0.1);
+    color: var(--danger-color);
+    border: 1px solid rgba(245, 108, 108, 0.2);
+}
+
+/* 空状态样式 */
+.empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 20px;
+    text-align: center;
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border-radius: var(--el-border-radius-base);
+    border: 1px dashed var(--el-border-color);
+    margin: 20px 0;
+}
+
+.empty-state i {
+    font-size: 3rem;
+    color: var(--el-color-info);
+    margin-bottom: 15px;
+    opacity: 0.6;
+}
+
+.empty-state p {
+    color: var(--text-secondary);
+    margin-bottom: 20px;
+    font-size: 1rem;
+}
+
+/* 通知提示样式 */
+.notification {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    padding: 15px 20px;
+    background-color: white;
+    border-radius: var(--el-border-radius-base);
+    box-shadow: var(--el-box-shadow-dark);
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    z-index: 1060;
+    max-width: 400px;
+    animation: slideInRight 0.5s ease-out;
+    border-left: 4px solid var(--el-color-primary);
+}
+
+@keyframes slideInRight {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+.notification i {
+    font-size: 1.5rem;
+}
+
+.notification.success i {
+    color: var(--success-color);
+}
+
+.notification.success {
+    border-left-color: var(--success-color);
+}
+
+.notification .close-btn {
+    background: none;
+    border: none;
+    padding: 5px;
+    cursor: pointer;
+    margin-left: auto;
+    color: var(--text-secondary);
+    transition: color 0.2s ease;
+}
+
+.notification .close-btn:hover {
+    color: var(--text-primary);
+}
+
+/* 添加页面响应式布局 */
+@media (max-width: 768px) {
+    .search-area {
+        padding: 15px;
+    }
+    
+    .table-card .card-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
+    
+    .action-btns {
+        flex-wrap: wrap;
+    }
+    
+    .pagination .page-item .page-link {
+        padding: 8px 12px;
+        min-width: 36px;
+    }
+} 

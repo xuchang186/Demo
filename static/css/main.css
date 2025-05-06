@@ -1,0 +1,16 @@
+/* main.css - 主样式文件，引入所有其他CSS文件 */
+
+/* 导入通用样式 */
+@import url('common.css');
+
+/* 病历管理模块样式 */
+@import url('patient_list.css');
+
+/* 肺炎诊断模块样式 */
+@import url('diagnosis_home.css');
+@import url('upload_ct.css');
+@import url('diagnosis_history.css');
+@import url('patient_diagnosis_history.css');
+
+/* 感染区域分割模块样式 */
+@import url('segmentation_home.css'); 

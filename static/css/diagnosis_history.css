@@ -1,0 +1,174 @@
+/* diagnosis_history.css - 诊断历史页面样式 */
+
+/* -----------------------------
+ * 搜索区域样式
+ * ----------------------------- */
+.search-area {
+    background-color: var(--bg-white);
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.search-area .form-label {
+    color: var(--text-secondary);
+    font-weight: 500;
+}
+
+.search-area .form-control, 
+.search-area .form-select {
+    border-color: var(--border-color);
+    padding: 10px 15px;
+}
+
+.search-area .form-control:focus,
+.search-area .form-select:focus {
+    border-color: var(--secondary-color);
+    box-shadow: 0 0 0 0.2rem rgba(74, 140, 255, 0.25);
+}
+
+/* -----------------------------
+ * 诊断历史表格样式
+ * ----------------------------- */
+.table {
+    margin-bottom: 0;
+}
+
+.table thead th {
+    background-color: var(--bg-hover);
+    color: var(--text-primary);
+    font-weight: 500;
+    border-top: none;
+    padding: 12px 15px;
+    vertical-align: middle;
+}
+
+.table tbody td {
+    padding: 12px 15px;
+    vertical-align: middle;
+    border-color: var(--border-color);
+    color: var(--text-regular);
+}
+
+.table tbody tr:hover {
+    background-color: var(--bg-hover);
+}
+
+/* 患者信息样式 */
+.patient-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.patient-info .patient-meta {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    margin-top: 3px;
+}
+
+/* 诊断结果样式 */
+.diagnosis-result {
+    font-weight: 500;
+}
+
+.diagnosis-result.positive {
+    color: var(--warning-color);
+}
+
+.diagnosis-result.negative {
+    color: var(--success-color);
+}
+
+.diagnosis-result.uncertain {
+    color: var(--text-secondary);
+}
+
+/* 置信度样式 */
+.confidence {
+    font-weight: 500;
+}
+
+.confidence.high {
+    color: var(--success-color);
+}
+
+.confidence.medium {
+    color: var(--info-color);
+}
+
+.confidence.low {
+    color: var(--warning-color);
+}
+
+/* -----------------------------
+ * 操作按钮样式
+ * ----------------------------- */
+.action-btns {
+    display: flex;
+    gap: 5px;
+}
+
+.action-btns .btn {
+    padding: 4px 8px;
+    font-size: 0.875rem;
+}
+
+/* -----------------------------
+ * 分页样式
+ * ----------------------------- */
+.pagination {
+    margin: 20px 0 0;
+    justify-content: center;
+}
+
+.pagination .page-item .page-link {
+    color: var(--text-regular);
+    background-color: var(--bg-white);
+    border-color: var(--border-color);
+    padding: 8px 12px;
+}
+
+.pagination .page-item.active .page-link {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+    color: white;
+}
+
+.pagination .page-item.disabled .page-link {
+    color: var(--text-secondary);
+}
+
+.pagination .page-item:first-child .page-link,
+.pagination .page-item:last-child .page-link {
+    border-radius: 4px;
+}
+
+/* -----------------------------
+ * 删除确认模态框样式
+ * ----------------------------- */
+.modal-header {
+    border-bottom-color: var(--border-color);
+}
+
+.modal-footer {
+    border-top-color: var(--border-color);
+}
+
+/* -----------------------------
+ * 响应式设计
+ * ----------------------------- */
+@media (max-width: 768px) {
+    .action-btns {
+        flex-direction: column;
+        gap: 8px;
+    }
+    
+    .table tbody td {
+        padding: 8px 10px;
+    }
+    
+    .table thead th {
+        padding: 8px 10px;
+    }
+} 

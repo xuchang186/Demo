@@ -1,0 +1,139 @@
+/* upload_ct.css - CT图像上传页面样式 */
+
+/* -----------------------------
+ * 上传区域样式
+ * ----------------------------- */
+.upload-area {
+    border: 2px dashed var(--border-color);
+    border-radius: 8px;
+    padding: 30px;
+    text-align: center;
+    background-color: var(--bg-hover);
+    transition: all 0.3s ease;
+    margin-bottom: 20px;
+    cursor: pointer;
+}
+
+.upload-area:hover {
+    border-color: var(--primary-color);
+    background-color: rgba(74, 140, 255, 0.05);
+}
+
+.upload-area.border-primary {
+    border-color: var(--primary-color);
+    background-color: rgba(74, 140, 255, 0.05);
+}
+
+.upload-area .upload-icon {
+    font-size: 48px;
+    color: var(--primary-color);
+    margin-bottom: 15px;
+}
+
+.upload-area h5 {
+    color: var(--text-primary);
+    margin-bottom: 10px;
+}
+
+.upload-area p {
+    color: var(--text-secondary);
+    margin-bottom: 15px;
+}
+
+/* 已选择文件显示 */
+#file-name {
+    padding: 10px;
+    margin-top: 15px;
+    font-size: 0.9rem;
+}
+
+/* -----------------------------
+ * 表单区域样式
+ * ----------------------------- */
+.form-section {
+    margin-bottom: 2rem;
+}
+
+.form-section h5 {
+    margin-bottom: 1rem;
+    color: var(--text-primary);
+    font-weight: 500;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.form-label {
+    font-weight: 500;
+    color: var(--text-regular);
+}
+
+.form-label .text-danger {
+    margin-left: 2px;
+}
+
+.form-text {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+}
+
+/* 复选框和单选框样式 */
+.form-check-inline {
+    margin-right: 1.5rem;
+}
+
+.form-check-input:checked {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+}
+
+/* 输入组样式 */
+.input-group-text {
+    background-color: var(--bg-hover);
+    border-color: var(--border-color);
+    color: var(--text-secondary);
+}
+
+/* 表单提交按钮区域 */
+.form-actions {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    margin-top: 2rem;
+}
+
+/* -----------------------------
+ * 加载中模态框
+ * ----------------------------- */
+.loading-modal .modal-body {
+    padding: 2rem;
+    text-align: center;
+}
+
+.loading-modal .spinner-border {
+    width: 3rem;
+    height: 3rem;
+    margin-bottom: 1rem;
+}
+
+.loading-modal h5 {
+    margin-bottom: 0.5rem;
+    color: var(--text-primary);
+}
+
+.loading-modal p {
+    color: var(--text-secondary);
+    margin-bottom: 0;
+}
+
+/* -----------------------------
+ * 警告/提示信息区域
+ * ----------------------------- */
+.alert-info {
+    background-color: rgba(74, 140, 255, 0.1);
+    border-color: rgba(74, 140, 255, 0.2);
+    color: var(--info-color);
+}
+
+.alert-info i {
+    margin-right: 0.5rem;
+} 

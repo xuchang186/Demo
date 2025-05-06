@@ -1,0 +1,720 @@
+/* diagnosis_home.css - 肺炎诊断首页样式 */
+
+/* -----------------------------
+ * 基础变量 - Element UI风格
+ * ----------------------------- */
+:root {
+  --el-border-radius-base: 8px;
+  --el-border-radius-small: 4px;
+  --el-border-radius-round: 20px;
+  --el-transition-duration: 0.3s;
+  --el-transition-function: cubic-bezier(0.645, 0.045, 0.355, 1);
+  --el-box-shadow-light: 0 4px 12px 0 rgba(0, 0, 0, 0.1);
+  --el-box-shadow-base: 0 8px 16px rgba(0, 0, 0, .12), 0 2px 8px rgba(0, 0, 0, .08);
+  --el-box-shadow-dark: 0 10px 20px rgba(0, 0, 0, .15), 0 3px 10px rgba(0, 0, 0, .12);
+  --el-fill-base: #f0f2f5;
+  --el-color-primary: #2B5DE0;
+  --el-color-success: #67C23A;
+  --el-color-warning: #E6A23C;
+  --el-color-danger: #F56C6C;
+  --el-color-info: #909399;
+  --el-text-color-primary: #303133;
+  --el-text-color-regular: #606266;
+  --el-text-color-secondary: #909399;
+  --el-background-color-base: #F5F7FA;
+}
+
+/* -----------------------------
+ * 卡片通用样式 - Element UI风格
+ * ----------------------------- */
+.card {
+  border-radius: 16px;
+  border: 1px solid rgba(43, 93, 224, 0.1);
+  background-color: #FFF;
+  overflow: hidden;
+  color: var(--el-text-color-primary);
+  transition: all 0.4s var(--el-transition-function);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+  margin-bottom: 25px;
+}
+
+.card:hover {
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
+  transform: translateY(-5px);
+}
+
+.card-header {
+  padding: 18px 22px;
+  border-bottom: 1px solid rgba(43, 93, 224, 0.1);
+  box-sizing: border-box;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: linear-gradient(to right, rgba(43, 93, 224, 0.1), rgba(43, 93, 224, 0.02));
+  color: var(--el-text-color-primary);
+  font-weight: 500;
+  font-size: 16px;
+}
+
+.card-header i {
+  color: var(--el-color-primary);
+  margin-right: 8px;
+}
+
+.card-body {
+  padding: 25px;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 1) 0%, rgba(245, 247, 250, 0.5) 100%);
+}
+
+/* -----------------------------
+ * 功能介绍卡片样式
+ * ----------------------------- */
+.card .row .d-flex {
+  background-color: rgba(255, 255, 255, 0.8);
+  padding: 20px;
+  border-radius: 14px;
+  transition: all 0.3s ease;
+  border: 1px solid rgba(220, 223, 230, 0.3);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+  position: relative;
+  overflow: hidden;
+}
+
+.card .row .d-flex:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 25px rgba(43, 93, 224, 0.15);
+  border-color: rgba(43, 93, 224, 0.2);
+  background-color: rgba(255, 255, 255, 0.95);
+}
+
+.card .row .d-flex:before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 4px;
+  height: 100%;
+  background: linear-gradient(to bottom, #2B5DE0, #4A8CFF);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.card .row .d-flex:hover:before {
+  opacity: 1;
+}
+
+.card .row .d-flex .me-3 {
+  width: 60px;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 12px;
+  background: linear-gradient(135deg, rgba(43, 93, 224, 0.1), rgba(74, 140, 255, 0.1));
+  transition: all 0.3s ease;
+  box-shadow: 0 3px 10px rgba(43, 93, 224, 0.1);
+}
+
+.card .row .d-flex:hover .me-3 {
+  transform: scale(1.05) rotate(5deg);
+  background: linear-gradient(135deg, rgba(43, 93, 224, 0.15), rgba(74, 140, 255, 0.15));
+  box-shadow: 0 5px 15px rgba(43, 93, 224, 0.2);
+}
+
+.card .row .d-flex h5 {
+  color: var(--el-text-color-primary);
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 10px;
+  transition: all 0.3s ease;
+}
+
+.card .row .d-flex:hover h5 {
+  color: var(--el-color-primary);
+}
+
+.card .row .d-flex p {
+  color: var(--el-text-color-regular);
+  transition: all 0.3s ease;
+}
+
+/* 第一个介绍卡片的特殊样式 */
+.card .row .col-md-4:nth-child(1) .d-flex {
+  border-left: 1px solid rgba(43, 93, 224, 0.2);
+  animation-delay: 0.1s;
+}
+
+/* 第二个介绍卡片的特殊样式 */
+.card .row .col-md-4:nth-child(2) .d-flex {
+  border-left: 1px solid rgba(103, 194, 58, 0.2);
+  animation-delay: 0.2s;
+}
+
+.card .row .col-md-4:nth-child(2) .d-flex:before {
+  background: linear-gradient(to bottom, #67C23A, #95E473);
+}
+
+.card .row .col-md-4:nth-child(2) .me-3 {
+  background: linear-gradient(135deg, rgba(103, 194, 58, 0.1), rgba(149, 228, 115, 0.1));
+  box-shadow: 0 3px 10px rgba(103, 194, 58, 0.1);
+}
+
+.card .row .col-md-4:nth-child(2) .d-flex:hover .me-3 {
+  background: linear-gradient(135deg, rgba(103, 194, 58, 0.15), rgba(149, 228, 115, 0.15));
+  box-shadow: 0 5px 15px rgba(103, 194, 58, 0.2);
+}
+
+.card .row .col-md-4:nth-child(2) .d-flex:hover h5 {
+  color: #67C23A;
+}
+
+/* 第三个介绍卡片的特殊样式 */
+.card .row .col-md-4:nth-child(3) .d-flex {
+  border-left: 1px solid rgba(230, 162, 60, 0.2);
+  animation-delay: 0.3s;
+}
+
+.card .row .col-md-4:nth-child(3) .d-flex:before {
+  background: linear-gradient(to bottom, #E6A23C, #F8D087);
+}
+
+.card .row .col-md-4:nth-child(3) .me-3 {
+  background: linear-gradient(135deg, rgba(230, 162, 60, 0.1), rgba(248, 208, 135, 0.1));
+  box-shadow: 0 3px 10px rgba(230, 162, 60, 0.1);
+}
+
+.card .row .col-md-4:nth-child(3) .d-flex:hover .me-3 {
+  background: linear-gradient(135deg, rgba(230, 162, 60, 0.15), rgba(248, 208, 135, 0.15));
+  box-shadow: 0 5px 15px rgba(230, 162, 60, 0.2);
+}
+
+.card .row .col-md-4:nth-child(3) .d-flex:hover h5 {
+  color: #E6A23C;
+}
+
+/* -----------------------------
+ * 搜索区域样式 - Element UI风格
+ * ----------------------------- */
+.form-control {
+  position: relative;
+  height: 42px;
+  line-height: 42px;
+  padding: 0 15px;
+  border-radius: 0 10px 10px 0;
+  border: 1px solid rgba(43, 93, 224, 0.15);
+  box-sizing: border-box;
+  color: var(--el-text-color-regular);
+  background-color: #FFFFFF;
+  transition: all 0.3s cubic-bezier(.645,.045,.355,1);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.form-control:focus {
+  outline: none;
+  border-color: var(--el-color-primary);
+  box-shadow: 0 0 0 3px rgba(43, 93, 224, 0.2);
+}
+
+.form-control:hover {
+  border-color: rgba(43, 93, 224, 0.5);
+}
+
+.input-group {
+  position: relative;
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: stretch;
+  width: 100%;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  border-radius: 10px;
+  transition: all 0.3s ease;
+}
+
+.input-group:hover {
+  box-shadow: 0 3px 12px rgba(0, 0, 0, 0.1);
+}
+
+.input-group:focus-within {
+  box-shadow: 0 4px 15px rgba(43, 93, 224, 0.15);
+}
+
+.input-group-text {
+  display: flex;
+  align-items: center;
+  padding: 0 15px;
+  font-size: 16px;
+  color: var(--el-color-primary);
+  text-align: center;
+  white-space: nowrap;
+  background-color: rgba(43, 93, 224, 0.05);
+  border: 1px solid rgba(43, 93, 224, 0.15);
+  border-radius: 10px 0 0 10px;
+  border-right: none;
+  transition: all 0.3s ease;
+}
+
+.input-group:focus-within .input-group-text {
+  background-color: rgba(43, 93, 224, 0.1);
+  border-color: var(--el-color-primary);
+}
+
+.form-label {
+  color: var(--el-text-color-primary);
+  font-size: 14px;
+  margin-bottom: 10px;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+}
+
+.page-title-wrapper {
+  position: relative;
+}
+
+.page-title {
+  font-size: 24px;
+  font-weight: 600;
+  color: var(--el-text-color-primary);
+  margin-bottom: 0;
+  line-height: 1.4;
+}
+
+/* 添加搜索按钮组样式 */
+.btn-group-search {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* 添加平滑滚动 */
+html {
+  scroll-behavior: smooth;
+}
+
+/* 添加卡片内容的渐变背景 */
+.card-body {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 1) 0%, rgba(245, 247, 250, 0.5) 100%);
+}
+
+.btn {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  line-height: 1;
+  height: 42px;
+  white-space: nowrap;
+  cursor: pointer;
+  text-align: center;
+  box-sizing: border-box;
+  outline: none;
+  transition: all 0.3s ease;
+  user-select: none;
+  font-weight: 500;
+  padding: 12px 20px;
+  font-size: 14px;
+  border-radius: 10px;
+  border: 1px solid #DCDFE6;
+  position: relative;
+  overflow: hidden;
+}
+
+.btn::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 5px;
+  height: 5px;
+  background: rgba(255, 255, 255, 0.7);
+  opacity: 0;
+  border-radius: 100%;
+  transform: scale(1, 1) translate(-50%);
+  transform-origin: 50% 50%;
+}
+
+.btn:active::after {
+  animation: ripple 0.6s ease-out;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, #2B5DE0, #4A8CFF);
+  border: none;
+  color: #FFFFFF;
+  box-shadow: 0 4px 10px rgba(43, 93, 224, 0.3);
+}
+
+.btn-primary:hover {
+  background: linear-gradient(135deg, #2456D0, #3A7CFF);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 15px rgba(43, 93, 224, 0.4);
+}
+
+.btn-secondary {
+  background-color: #FFFFFF;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  color: var(--el-text-color-regular);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+}
+
+.btn-secondary:hover {
+  background-color: var(--el-fill-base);
+  border-color: var(--el-text-color-secondary);
+  color: var(--el-text-color-primary);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* -----------------------------
+ * 患者卡片样式 - Element UI风格
+ * ----------------------------- */
+.patient-card {
+  border-radius: 16px;
+  border: 1px solid rgba(43, 93, 224, 0.15);
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  height: 100%;
+  background-color: #fff;
+  box-shadow: 0 10px 20px -5px rgba(0, 0, 0, 0.15), 0 0 10px rgba(43, 93, 224, 0.1);
+  position: relative;
+  overflow: hidden;
+  z-index: 1;
+}
+
+.patient-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 6px;
+  background: linear-gradient(to right, #2B5DE0, #4A8CFF);
+  z-index: 2;
+  transition: height 0.3s ease;
+}
+
+.patient-card:hover {
+  transform: translateY(-12px) scale(1.03);
+  border-color: var(--el-color-primary);
+  box-shadow: 0 20px 40px rgba(43, 93, 224, 0.25), 0 0 20px rgba(43, 93, 224, 0.15);
+  z-index: 10;
+}
+
+.patient-card:hover::before {
+  height: 8px;
+}
+
+.patient-card .card-body {
+  padding: 22px;
+  position: relative;
+  z-index: 3;
+}
+
+.card-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--el-text-color-primary);
+  margin-bottom: 12px;
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.card-title i {
+  color: var(--el-color-primary);
+  font-size: 20px;
+  margin-right: 8px;
+}
+
+.card-info {
+  color: var(--el-text-color-regular);
+  font-size: 14px;
+  line-height: 1.6;
+  background-color: rgba(245, 247, 250, 0.7);
+  padding: 15px;
+  border-radius: 12px;
+  border: 1px solid rgba(220, 223, 230, 0.5);
+  margin-bottom: 18px;
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.05);
+  transition: all 0.3s ease;
+}
+
+.patient-card:hover .card-info {
+  background-color: rgba(245, 247, 250, 0.9);
+  box-shadow: inset 0 1px 5px rgba(0, 0, 0, 0.08);
+}
+
+.card-info p {
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+}
+
+.card-info p:last-child {
+  margin-bottom: 0;
+}
+
+.card-info p strong {
+  display: inline-block;
+  width: 80px;
+  color: var(--el-text-color-primary);
+  font-weight: 500;
+}
+
+.card-info p strong i {
+  color: var(--el-color-primary);
+  margin-right: 5px;
+}
+
+.badge {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 12px;
+  padding: 4px 10px;
+  height: 24px;
+  line-height: 1;
+  border-radius: 6px;
+  white-space: nowrap;
+  transition: all 0.3s ease;
+  font-weight: 500;
+}
+
+.bg-light {
+  background-color: var(--el-background-color-base) !important;
+  border: 1px solid rgba(0, 0, 0, 0.07);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.08);
+}
+
+.badge.bg-light:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.badge.bg-primary {
+  background: linear-gradient(to right, #2B5DE0, #4A8CFF) !important;
+  border: none;
+  box-shadow: 0 3px 6px rgba(43, 93, 224, 0.3);
+}
+
+.badge.bg-primary:hover {
+  box-shadow: 0 4px 8px rgba(43, 93, 224, 0.4);
+  transform: translateY(-1px);
+}
+
+/* 温度显示的样式增强 */
+span[class^="text-"] {
+  padding: 3px 8px;
+  border-radius: 6px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  display: inline-block;
+}
+
+.text-normal {
+  background-color: rgba(103, 194, 58, 0.15);
+  border: 1px solid rgba(103, 194, 58, 0.2);
+}
+
+.text-warning {
+  background-color: rgba(230, 162, 60, 0.15);
+  border: 1px solid rgba(230, 162, 60, 0.2);
+}
+
+.text-danger {
+  background-color: rgba(245, 108, 108, 0.15);
+  border: 1px solid rgba(245, 108, 108, 0.2);
+}
+
+.patient-card .btn {
+  border-radius: 10px;
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s ease;
+  box-shadow: 0 6px 12px rgba(43, 93, 224, 0.25);
+  padding: 12px;
+  font-weight: 500;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  font-size: 14px;
+}
+
+.patient-card .btn-primary {
+  background: linear-gradient(135deg, #2B5DE0, #4A8CFF);
+  border: none;
+}
+
+.patient-card .btn:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 18px rgba(43, 93, 224, 0.35);
+}
+
+.patient-card .btn:active {
+  transform: translateY(0);
+  box-shadow: 0 4px 8px rgba(43, 93, 224, 0.2);
+}
+
+/* -----------------------------
+ * 微动画效果
+ * ----------------------------- */
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.btn-primary:active {
+  animation: pulse 0.3s;
+}
+
+/* 添加卡片阴影过渡动画 */
+.card {
+  transition: box-shadow 0.3s var(--el-transition-function), transform 0.3s var(--el-transition-function);
+}
+
+@media (max-width: 768px) {
+  .card-header, .card-body {
+    padding: 15px;
+  }
+}
+
+/* 添加入场动画 */
+.row .col {
+  opacity: 0;
+  transform: translateY(20px);
+  animation: fadeInUp 0.6s forwards;
+}
+
+.row .col:nth-child(1) { animation-delay: 0.1s; }
+.row .col:nth-child(2) { animation-delay: 0.2s; }
+.row .col:nth-child(3) { animation-delay: 0.3s; }
+.row .col:nth-child(4) { animation-delay: 0.4s; }
+.row .col:nth-child(5) { animation-delay: 0.5s; }
+.row .col:nth-child(6) { animation-delay: 0.6s; }
+
+@keyframes fadeInUp {
+  0% {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* -----------------------------
+ * 快速操作区域样式
+ * ----------------------------- */
+.action-area {
+    text-align: center;
+    padding: 3rem 1rem;
+}
+
+.action-area .display-2 {
+    margin-bottom: 1.5rem;
+    color: var(--primary-color);
+}
+
+.action-area h3 {
+    margin-bottom: 1rem;
+    color: var(--text-primary);
+}
+
+.action-area p {
+    margin-bottom: 2rem;
+    color: var(--text-secondary);
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.action-area .btn-lg {
+    padding: 0.75rem 1.5rem;
+    font-size: 1.1rem;
+}
+
+/* -----------------------------
+ * 流程图样式
+ * ----------------------------- */
+.process-steps {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    margin-top: 1rem;
+}
+
+.process-step {
+    flex: 1;
+    min-width: 200px;
+    text-align: center;
+    padding: 1rem;
+    position: relative;
+}
+
+.process-step:not(:last-child)::after {
+    content: '';
+    position: absolute;
+    top: 40px;
+    right: 0;
+    width: 50%;
+    height: 2px;
+    background-color: var(--border-color);
+}
+
+.process-step:not(:first-child)::before {
+    content: '';
+    position: absolute;
+    top: 40px;
+    left: 0;
+    width: 50%;
+    height: 2px;
+    background-color: var(--border-color);
+}
+
+.step-icon {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background-color: var(--bg-hover);
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 1rem;
+    position: relative;
+    z-index: 1;
+}
+
+.step-icon i {
+    font-size: 2rem;
+    color: var(--primary-color);
+}
+
+.step-title {
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+    color: var(--text-primary);
+}
+
+.step-description {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+}
+
+/* -----------------------------
+ * 响应式设计
+ * ----------------------------- */
+@media (max-width: 768px) {
+    .process-step:not(:last-child)::after,
+    .process-step:not(:first-child)::before {
+        display: none;
+    }
+    
+    .process-step {
+        margin-bottom: 2rem;
+    }
+} 
