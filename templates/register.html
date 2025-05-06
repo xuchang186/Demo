@@ -1,0 +1,241 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>注册 - 肺炎诊断系统</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="{% static 'css/main.css' %}" rel="stylesheet">
+    <style>
+        body {
+            background-color: var(--bg-main);
+            display: flex;
+            align-items: center;
+            height: 100vh;
+        }
+        .register-container {
+            width: 100%;
+            max-width: 500px;
+            padding: 30px;
+            margin: 0 auto;
+            background: var(--bg-white);
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+        .register-logo {
+            text-align: center;
+            margin-bottom: 30px;
+            color: var(--primary-color);
+            font-size: 24px;
+            font-weight: bold;
+        }
+        .password-container {
+            position: relative;
+        }
+        .password-toggle {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+            color: #6c757d;
+        }
+        .login-link {
+            text-align: center;
+            margin-top: 20px;
+        }
+        .form-text {
+            font-size: 12px;
+            color: #6c757d;
+        }
+        .is-invalid {
+            border-color: #dc3545;
+        }
+        .invalid-feedback {
+            display: none;
+            color: #dc3545;
+            font-size: 12px;
+        }
+        .alert {
+            margin-bottom: 20px;
+        }
+        /* 修改placeholder文本颜色 */
+        ::placeholder {
+            color: #c0c0c0 !important;
+            opacity: 0.7;
+        }
+        ::-webkit-input-placeholder {
+            color: #c0c0c0 !important;
+            opacity: 0.7;
+        }
+        ::-moz-placeholder {
+            color: #c0c0c0 !important;
+            opacity: 0.7;
+        }
+        :-ms-input-placeholder {
+            color: #c0c0c0 !important;
+            opacity: 0.7;
+        }
+        ::-ms-input-placeholder {
+            color: #c0c0c0 !important;
+            opacity: 0.7;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="register-container">
+            <div class="register-logo">
+                肺炎诊断系统 - 医生注册
+            </div>
+            
+            {% if messages %}
+            <div class="messages">
+                {% for message in messages %}
+                <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}{{ message.tags }}{% endif %} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+            
+            <form method="post" action="{% url 'register' %}" id="registerForm">
+                {% csrf_token %}
+                
+                <div class="mb-3">
+                    <label for="doctor_id" class="form-label">医生ID</label>
+                    <input type="text" class="form-control" id="doctor_id" name="doctor_id" placeholder="请输入10位数字ID" required>
+                    <div class="invalid-feedback" id="doctor_id_feedback">ID必须是10位数字</div>
+                </div>
+                
+                <div class="mb-3">
+                    <label for="full_name" class="form-label">全名</label>
+                    <input type="text" class="form-control" id="full_name" name="full_name" placeholder="全名长度不超过30个字符" required>
+                    <div class="invalid-feedback" id="full_name_feedback">全名长度必须在1-30个字符之间</div>
+                </div>
+                
+                <div class="mb-3">
+                    <label for="email" class="form-label">邮箱</label>
+                    <input type="email" class="form-control" id="email" name="email" placeholder="请输入有效的邮箱地址" required>
+                    <div class="invalid-feedback" id="email_feedback">请输入有效的邮箱地址 (xxxxx@xx.com)</div>
+                </div>
+                
+                <div class="mb-3">
+                    <label for="password" class="form-label">密码</label>
+                    <div class="password-container">
+                        <input type="password" class="form-control" id="password" name="password" placeholder="密码至少10位，且必须包含大小写字母和数字" required>
+                        <span class="password-toggle" onclick="togglePassword('password', 'eye-icon-1')">
+                            <i class="bi bi-eye" id="eye-icon-1"></i>
+                        </span>
+                    </div>
+                    <div class="invalid-feedback" id="password_feedback">密码必须至少10位，且包含大小写字母和数字</div>
+                </div>
+                
+                <div class="mb-3">
+                    <label for="confirm_password" class="form-label">确认密码</label>
+                    <div class="password-container">
+                        <input type="password" class="form-control" id="confirm_password" name="confirm_password" placeholder="请再次输入密码" required>
+                        <span class="password-toggle" onclick="togglePassword('confirm_password', 'eye-icon-2')">
+                            <i class="bi bi-eye" id="eye-icon-2"></i>
+                        </span>
+                    </div>
+                    <div class="invalid-feedback" id="confirm_password_feedback">两次输入的密码不一致</div>
+                </div>
+                
+                <div class="d-grid gap-2">
+                    <button type="submit" class="btn btn-primary" id="registerBtn">注册</button>
+                </div>
+                
+                <div class="login-link">
+                    <p>已有账号？<a href="{% url 'login' %}">登录</a></p>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function togglePassword(inputId, iconId) {
+            const passwordInput = document.getElementById(inputId);
+            const eyeIcon = document.getElementById(iconId);
+            
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                eyeIcon.classList.remove('bi-eye');
+                eyeIcon.classList.add('bi-eye-slash');
+            } else {
+                passwordInput.type = 'password';
+                eyeIcon.classList.remove('bi-eye-slash');
+                eyeIcon.classList.add('bi-eye');
+            }
+        }
+        
+        document.getElementById('registerForm').addEventListener('submit', function(event) {
+            let isValid = true;
+            
+            // 验证ID
+            const doctorId = document.getElementById('doctor_id').value;
+            if (!doctorId.match(/^\d{10}$/)) {
+                document.getElementById('doctor_id').classList.add('is-invalid');
+                document.getElementById('doctor_id_feedback').style.display = 'block';
+                isValid = false;
+            } else {
+                document.getElementById('doctor_id').classList.remove('is-invalid');
+                document.getElementById('doctor_id_feedback').style.display = 'none';
+            }
+            
+            // 验证全名长度
+            const fullName = document.getElementById('full_name').value;
+            if (fullName.length > 30 || fullName.length === 0) {
+                document.getElementById('full_name').classList.add('is-invalid');
+                document.getElementById('full_name_feedback').style.display = 'block';
+                isValid = false;
+            } else {
+                document.getElementById('full_name').classList.remove('is-invalid');
+                document.getElementById('full_name_feedback').style.display = 'none';
+            }
+            
+            // 验证邮箱
+            const email = document.getElementById('email').value;
+            if (!email.match(/^.+@.+\..+$/)) {
+                document.getElementById('email').classList.add('is-invalid');
+                document.getElementById('email_feedback').style.display = 'block';
+                isValid = false;
+            } else {
+                document.getElementById('email').classList.remove('is-invalid');
+                document.getElementById('email_feedback').style.display = 'none';
+            }
+            
+            // 验证密码
+            const password = document.getElementById('password').value;
+            if (!password.match(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{10,}$/)) {
+                document.getElementById('password').classList.add('is-invalid');
+                document.getElementById('password_feedback').style.display = 'block';
+                isValid = false;
+            } else {
+                document.getElementById('password').classList.remove('is-invalid');
+                document.getElementById('password_feedback').style.display = 'none';
+            }
+            
+            // 验证密码一致性
+            const confirmPassword = document.getElementById('confirm_password').value;
+            if (confirmPassword !== password) {
+                document.getElementById('confirm_password').classList.add('is-invalid');
+                document.getElementById('confirm_password_feedback').style.display = 'block';
+                isValid = false;
+            } else {
+                document.getElementById('confirm_password').classList.remove('is-invalid');
+                document.getElementById('confirm_password_feedback').style.display = 'none';
+            }
+            
+            if (!isValid) {
+                event.preventDefault();
+            }
+        });
+    </script>
+</body>
+</html> 

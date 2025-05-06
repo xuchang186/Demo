@@ -1,0 +1,318 @@
+{% extends 'index.html' %}
+{% load static %}
+
+{% block page_css %}
+<style>
+    .doctor-info-list {
+        list-style: none;
+        padding: 0;
+    }
+    
+    .doctor-info-item {
+        padding: 15px;
+        border-bottom: 1px solid #eee;
+        display: flex;
+        align-items: center;
+    }
+    
+    .doctor-info-label {
+        font-weight: 500;
+        width: 120px;
+        color: #6c757d;
+    }
+    
+    .doctor-info-value {
+        flex: 1;
+    }
+    
+    .edit-btn {
+        margin-left: 15px;
+    }
+    
+    .modal-form .form-group {
+        margin-bottom: 1rem;
+    }
+    
+    .datetime-value {
+        color: #6c757d;
+        font-size: 0.9rem;
+    }
+    
+    .is-invalid {
+        border-color: #dc3545;
+    }
+    
+    .invalid-feedback {
+        display: none;
+        color: #dc3545;
+        font-size: 12px;
+    }
+    
+    /* 修改placeholder文本颜色 */
+    ::placeholder {
+        color: #c0c0c0 !important;
+        opacity: 0.7;
+    }
+    ::-webkit-input-placeholder {
+        color: #c0c0c0 !important;
+        opacity: 0.7;
+    }
+    ::-moz-placeholder {
+        color: #c0c0c0 !important;
+        opacity: 0.7;
+    }
+    :-ms-input-placeholder {
+        color: #c0c0c0 !important;
+        opacity: 0.7;
+    }
+    ::-ms-input-placeholder {
+        color: #c0c0c0 !important;
+        opacity: 0.7;
+    }
+</style>
+{% endblock %}
+
+{% block breadcrumb %}
+<li class="breadcrumb-item active" aria-current="page">个人信息</li>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    {% if messages %}
+    <div class="messages mb-4">
+        {% for message in messages %}
+        <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}{{ message.tags }}{% endif %} alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+    
+    <div class="card">
+        <div class="card-header">
+            <h5 class="mb-0"><i class="bi bi-person-circle me-2"></i>个人信息</h5>
+        </div>
+        <div class="card-body">
+            <ul class="doctor-info-list">
+                <li class="doctor-info-item">
+                    <div class="doctor-info-label">医生ID</div>
+                    <div class="doctor-info-value">{{ doctor.doctor_id }}</div>
+                </li>
+                <li class="doctor-info-item">
+                    <div class="doctor-info-label">全名</div>
+                    <div class="doctor-info-value">{{ doctor.full_name }}</div>
+                    <button type="button" class="btn btn-sm btn-outline-primary edit-btn" data-bs-toggle="modal" data-bs-target="#editFullNameModal">
+                        <i class="bi bi-pencil"></i> 修改
+                    </button>
+                </li>
+                <li class="doctor-info-item">
+                    <div class="doctor-info-label">密码</div>
+                    <div class="doctor-info-value">••••••••••</div>
+                    <button type="button" class="btn btn-sm btn-outline-primary edit-btn" data-bs-toggle="modal" data-bs-target="#editPasswordModal">
+                        <i class="bi bi-pencil"></i> 修改
+                    </button>
+                </li>
+                <li class="doctor-info-item">
+                    <div class="doctor-info-label">邮箱</div>
+                    <div class="doctor-info-value">{{ doctor.email|default:"未设置" }}</div>
+                    <button type="button" class="btn btn-sm btn-outline-primary edit-btn" data-bs-toggle="modal" data-bs-target="#editEmailModal">
+                        <i class="bi bi-pencil"></i> 修改
+                    </button>
+                </li>
+                <li class="doctor-info-item">
+                    <div class="doctor-info-label">创建时间</div>
+                    <div class="doctor-info-value datetime-value">{{ doctor.created_at }}</div>
+                </li>
+                <li class="doctor-info-item">
+                    <div class="doctor-info-label">最后登录</div>
+                    <div class="doctor-info-value datetime-value">{{ doctor.last_login|default:"从未登录" }}</div>
+                </li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<!-- 修改全名的模态框 -->
+<div class="modal fade" id="editFullNameModal" tabindex="-1" aria-labelledby="editFullNameModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form method="post" action="{% url 'doctor_profile' %}" class="modal-form" id="editFullNameForm">
+                {% csrf_token %}
+                <input type="hidden" name="field" value="full_name">
+                
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editFullNameModalLabel">修改全名</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="full_name" class="form-label">全名</label>
+                        <input type="text" class="form-control" id="edit_full_name" name="value" value="{{ doctor.full_name }}" placeholder="全名长度不超过30个字符" required>
+                        <div class="invalid-feedback" id="full_name_feedback">全名长度必须在1-30个字符之间</div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                    <button type="submit" class="btn btn-primary">保存</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- 修改密码的模态框 -->
+<div class="modal fade" id="editPasswordModal" tabindex="-1" aria-labelledby="editPasswordModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form method="post" action="{% url 'doctor_profile' %}" class="modal-form" id="editPasswordForm">
+                {% csrf_token %}
+                <input type="hidden" name="field" value="password">
+                
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editPasswordModalLabel">修改密码</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="password" class="form-label">新密码</label>
+                        <div class="password-container">
+                            <input type="password" class="form-control" id="edit_password" name="value" placeholder="密码至少10位，且必须包含大小写字母和数字" required>
+                            <span class="password-toggle" id="togglePassword">
+                                <i class="bi bi-eye"></i>
+                            </span>
+                        </div>
+                        <div class="invalid-feedback" id="password_feedback">密码必须至少10位，且包含大小写字母和数字</div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                    <button type="submit" class="btn btn-primary">保存</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- 修改邮箱的模态框 -->
+<div class="modal fade" id="editEmailModal" tabindex="-1" aria-labelledby="editEmailModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form method="post" action="{% url 'doctor_profile' %}" class="modal-form" id="editEmailForm">
+                {% csrf_token %}
+                <input type="hidden" name="field" value="email">
+                
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editEmailModalLabel">修改邮箱</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="email" class="form-label">邮箱</label>
+                        <input type="email" class="form-control" id="edit_email" name="value" value="{{ doctor.email }}" placeholder="请输入有效的邮箱地址" required>
+                        <div class="invalid-feedback" id="email_feedback">请输入有效的邮箱地址 (xxxxx@xx.com)</div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                    <button type="submit" class="btn btn-primary">保存</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block page_scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // 密码显示/隐藏切换
+        document.getElementById('togglePassword').addEventListener('click', function() {
+            var passwordInput = document.getElementById('edit_password');
+            var icon = this.querySelector('i');
+            
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                icon.classList.remove('bi-eye');
+                icon.classList.add('bi-eye-slash');
+            } else {
+                passwordInput.type = 'password';
+                icon.classList.remove('bi-eye-slash');
+                icon.classList.add('bi-eye');
+            }
+        });
+        
+        // 全名验证
+        document.getElementById('editFullNameForm').addEventListener('submit', function(event) {
+            const fullName = document.getElementById('edit_full_name').value;
+            if (fullName.length > 30 || fullName.length === 0) {
+                event.preventDefault();
+                document.getElementById('edit_full_name').classList.add('is-invalid');
+                document.getElementById('full_name_feedback').style.display = 'block';
+            } else {
+                document.getElementById('edit_full_name').classList.remove('is-invalid');
+                document.getElementById('full_name_feedback').style.display = 'none';
+            }
+        });
+        
+        // 密码验证
+        document.getElementById('editPasswordForm').addEventListener('submit', function(event) {
+            const password = document.getElementById('edit_password').value;
+            if (!password.match(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{10,}$/)) {
+                event.preventDefault();
+                document.getElementById('edit_password').classList.add('is-invalid');
+                document.getElementById('password_feedback').style.display = 'block';
+            } else {
+                document.getElementById('edit_password').classList.remove('is-invalid');
+                document.getElementById('password_feedback').style.display = 'none';
+            }
+        });
+        
+        // 邮箱验证
+        document.getElementById('editEmailForm').addEventListener('submit', function(event) {
+            const email = document.getElementById('edit_email').value;
+            if (!email.match(/^.+@.+\..+$/)) {
+                event.preventDefault();
+                document.getElementById('edit_email').classList.add('is-invalid');
+                document.getElementById('email_feedback').style.display = 'block';
+            } else {
+                document.getElementById('edit_email').classList.remove('is-invalid');
+                document.getElementById('email_feedback').style.display = 'none';
+            }
+        });
+        
+        // 监听所有模态框隐藏事件，确保背景遮罩被完全清除
+        const modalList = ['editFullNameModal', 'editPasswordModal', 'editEmailModal'];
+        
+        modalList.forEach(modalId => {
+            document.getElementById(modalId).addEventListener('hidden.bs.modal', function() {
+                // 移除可能残留的模态框背景
+                const modalBackdrops = document.querySelectorAll('.modal-backdrop');
+                modalBackdrops.forEach(backdrop => {
+                    backdrop.remove();
+                });
+                
+                // 移除body上的modal-open类
+                document.body.classList.remove('modal-open');
+                document.body.style.overflow = '';
+                document.body.style.paddingRight = '';
+                
+                // 重置表单验证状态
+                const forms = ['editFullNameForm', 'editPasswordForm', 'editEmailForm'];
+                forms.forEach(formId => {
+                    if (document.getElementById(formId)) {
+                        const inputs = document.getElementById(formId).querySelectorAll('.form-control');
+                        inputs.forEach(input => {
+                            input.classList.remove('is-invalid');
+                        });
+                        const feedbacks = document.getElementById(formId).querySelectorAll('.invalid-feedback');
+                        feedbacks.forEach(feedback => {
+                            feedback.style.display = 'none';
+                        });
+                    }
+                });
+            });
+        });
+    });
+</script>
+{% endblock %} 

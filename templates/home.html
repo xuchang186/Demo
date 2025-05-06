@@ -1,0 +1,96 @@
+{% extends 'index.html' %}
+{% load static %}
+
+{% block breadcrumb %}
+<li class="breadcrumb-item active" aria-current="page">当前页面</li>
+{% endblock %}
+
+{% block page_css %}
+<style>
+    /* 确保卡片标题居中 */
+    .card h3.card-title {
+        text-align: center;
+        width: 100%;
+        display: block;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <!-- 欢迎信息区 -->
+    <div class="text-center mb-5">
+        <div class="mb-4">
+            <div class="display-1 text-primary mb-4">
+                <div class="d-inline-block position-relative">
+                    <i class="bi bi-lungs-fill"></i>
+                    <i class="bi bi-heart-pulse position-absolute" style="font-size: 1.2rem; bottom: 0; right: -10px; color: #41B883;"></i>
+                </div>
+            </div>
+            <h1 class="fs-1 fw-bold text-dark">欢迎使用肺炎诊断系统</h1>
+            <p class="text-secondary fs-5 mt-3">本系统旨在帮助医疗专业人员进行肺炎诊断与分析</p>
+        </div>
+    </div>
+    
+    <!-- 功能卡片区 -->
+    <div class="row mt-5 justify-content-center">
+        <div class="col-md-10">
+            <div class="row">
+                <!-- 病历管理卡片 -->
+                <div class="col-md-4 mb-4">
+                    <div class="card h-100 border-0 shadow-sm">
+                        <div class="card-body text-center p-4" style="border-radius: 15px;box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);">
+                            <div class="d-flex justify-content-center mb-4">
+                                <div class="feature-icon bg-light rounded-circle p-3 d-flex align-items-center justify-content-center">
+                                    <i class="bi bi-file-earmark-medical text-primary" style="font-size: 2rem;"></i>
+                                </div>
+                            </div>
+                            <h3 class="card-title fs-4 mb-3">病历管理</h3>
+                            <p class="card-text text-secondary mb-4">管理患者基本信息、临床特征及就诊记录</p>
+                            <a href="{% url 'patient_records:patient_list' %}" class="btn btn-outline-primary px-4">
+                                <i class="bi bi-arrow-right"></i> 进入管理
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 肺炎诊断卡片 -->
+                <div class="col-md-4 mb-4">
+                    <div class="card h-100 border-0 shadow-sm">
+                        <div class="card-body text-center p-4" style="border-radius: 15px;box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);">
+                            <div class="d-flex justify-content-center mb-4">
+                                <div class="feature-icon bg-light rounded-circle p-3 d-flex align-items-center justify-content-center">
+                                    <i class="bi bi-clipboard2-pulse text-primary" style="font-size: 2rem;"></i>
+                                </div>
+                            </div>
+                            <h3 class="card-title fs-4 mb-3">肺炎诊断</h3>
+                            <p class="card-text text-secondary mb-4">上传CT图像，进行智能肺炎诊断分析</p>
+                            <a href="{% url 'diagnosis:home' %}" class="btn btn-outline-primary px-4">
+                                <i class="bi bi-arrow-right"></i> 开始诊断
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 感染区域分割卡片 -->
+                <div class="col-md-4 mb-4">
+                    <div class="card h-100 border-0 shadow-sm">
+                        <div class="card-body text-center p-4" style="border-radius: 15px;box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);">
+                            <div class="d-flex justify-content-center mb-4">
+                                <div class="feature-icon bg-light rounded-circle p-3 d-flex align-items-center justify-content-center">
+                                    <i class="bi bi-grid-3x3 text-primary" style="font-size: 2rem;"></i>
+                                </div>
+                            </div>
+                            <h3 class="card-title fs-4 mb-3">感染区域分割</h3>
+                            <p class="card-text text-secondary mb-4">基于X光影像进行肺炎感染区域自动分割</p>
+                            <a href="{% url 'segmentation:segmentation_home' %}" class="btn btn-outline-primary px-4">
+                                <i class="bi bi-arrow-right"></i> 开始分割
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

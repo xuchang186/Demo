@@ -1,0 +1,54 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>已登出 - 肺炎诊断系统</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="{% static 'css/main.css' %}" rel="stylesheet">
+    <style>
+        body {
+            background-color: var(--bg-main);
+            display: flex;
+            align-items: center;
+            height: 100vh;
+        }
+        .logout-container {
+            width: 100%;
+            max-width: 400px;
+            padding: 30px;
+            margin: 0 auto;
+            background: var(--bg-white);
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        .logout-logo {
+            margin-bottom: 30px;
+            color: var(--primary-color);
+            font-size: 24px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="logout-container">
+            <div class="logout-logo">
+                肺炎诊断系统
+            </div>
+            <div class="mb-4">
+                <h4>您已成功退出系统</h4>
+                <p>感谢您的使用，请点击下方按钮重新登录。</p>
+            </div>
+            <div class="d-grid gap-2">
+                <a href="{% url 'login' %}" class="btn btn-primary">重新登录</a>
+            </div>
+        </div>
+    </div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html> 
