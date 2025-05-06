@@ -1,0 +1,394 @@
+{% extends 'index.html' %}
+{% load static %}
+
+{% block breadcrumb %}
+<li class="breadcrumb-item active" aria-current="page">历史诊断结果</li>
+{% endblock %}
+
+{% block page_css %}
+<style>
+    /* 统计卡片样式 - 医疗风格配色 */
+    .stat-card {
+        border-radius: 8px;
+        border: none;
+        transition: all 0.25s ease;
+        overflow: hidden;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+    }
+    
+    .stat-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 5px 12px rgba(0, 0, 0, 0.12);
+    }
+    
+    .stat-card .card-body {
+        padding: 0.75rem;
+    }
+    
+    .stat-card h5 {
+        font-size: 1.25rem;
+        font-weight: 600;
+        margin-bottom: 0;
+    }
+    
+    .stat-card .small {
+        font-size: 0.8rem;
+        opacity: 0.9;
+    }
+    
+    /* 统计卡片颜色 - 医疗主题 */
+    .stat-card.total {
+        background-color: #f0f4f9;
+        color: #2c3e50;
+    }
+    
+    .stat-card.normal {
+        background-color: #ebf7f2;
+        color: #1a7d4e;
+        border-left: 3px solid #41B883;
+    }
+    
+    .stat-card.mild {
+        background-color: #fff7e6;
+        color: #976600;
+        border-left: 3px solid #E6A23C;
+    }
+    
+    .stat-card.severe {
+        background-color: #fef0f0;
+        color: #c03639;
+        border-left: 3px solid #F56C6C;
+    }
+    
+    /* 表格行悬浮动画效果 - 减少幅度 */
+    .table tbody tr {
+        transition: all 0.25s cubic-bezier(0.2, 0.8, 0.2, 1);
+        border-left: 3px solid transparent;
+        cursor: pointer;
+    }
+    
+    .table tbody tr:hover {
+        background-color: rgba(43, 93, 224, 0.03) !important;
+        transform: translateY(-2px);
+        box-shadow: 0 5px 10px rgba(0, 0, 0, 0.05);
+        z-index: 5;
+        position: relative;
+        border-left: 3px solid var(--el-color-primary);
+    }
+    
+    /* 表格内元素动画 */
+    .table td {
+        transition: all 0.2s ease;
+    }
+    
+    .table tr:hover td {
+        color: var(--el-text-color-primary);
+    }
+    
+    /* 操作按钮动画 */
+    .btn-group .btn {
+        transition: all 0.2s ease;
+        transform-origin: center;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    }
+    
+    .table tr:hover .btn-group .btn {
+        opacity: 1;
+        transform: translateY(-1px);
+    }
+    
+    .btn-group .btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 3px 6px rgba(0, 0, 0, 0.08);
+        z-index: 2;
+    }
+    
+    /* 诊断徽章动画 */
+    .badge {
+        transition: all 0.2s ease;
+    }
+    
+    .table tr:hover .badge {
+        transform: scale(1.05);
+    }
+    
+    /* 头像动画 */
+    .avatar {
+        transition: all 0.2s ease;
+    }
+    
+    .table tr:hover .avatar {
+        transform: scale(1.05);
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+    
+    .table tr:hover .avatar i {
+        transform: scale(1.1);
+    }
+    
+    /* 表格行进入动画 */
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    @media (prefers-reduced-motion: no-preference) {
+        .table tbody tr {
+            opacity: 0;
+            animation: fadeInUp 0.4s ease forwards;
+        }
+        
+        .table tbody tr:nth-child(1) { animation-delay: 0.05s; }
+        .table tbody tr:nth-child(2) { animation-delay: 0.1s; }
+        .table tbody tr:nth-child(3) { animation-delay: 0.15s; }
+        .table tbody tr:nth-child(4) { animation-delay: 0.2s; }
+        .table tbody tr:nth-child(5) { animation-delay: 0.25s; }
+        .table tbody tr:nth-child(6) { animation-delay: 0.3s; }
+        .table tbody tr:nth-child(7) { animation-delay: 0.35s; }
+        .table tbody tr:nth-child(8) { animation-delay: 0.4s; }
+        .table tbody tr:nth-child(9) { animation-delay: 0.45s; }
+        .table tbody tr:nth-child(10) { animation-delay: 0.5s; }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- 页面标题 -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="page-title">
+            <i class="bi bi-clock-history me-2"></i> 历史诊断结果
+        </h2>
+        <a href="{% url 'diagnosis:home' %}" class="btn btn-outline-secondary">
+            <i class="bi bi-house me-1"></i> 返回首页
+        </a>
+    </div>
+    
+    <!-- 筛选区域 -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <form method="get" class="row g-3 align-items-end">
+                <div class="col-md-3" >
+                    <div class="form-group">
+                        <label class="form-label"><i class="bi bi-search me-1"></i> 搜索</label>
+                        <input type="text" class="form-control" placeholder="搜索患者姓名或ID" name="search_query" value="{{ search_query }}">
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="form-group">
+                        <label class="form-label"><i class="bi bi-filter me-1"></i> 诊断结果筛选</label>
+                        <select class="form-select" name="result_type">
+                            <option value="">全部结果</option>
+                            <option value="Normal" {% if result_type == 'Normal' %}selected{% endif %}>无肺炎</option>
+                            <option value="Mild" {% if result_type == 'Mild' %}selected{% endif %}>轻度肺炎</option>
+                            <option value="Severe" {% if result_type == 'Severe' %}selected{% endif %}>重度肺炎</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="form-group">
+                        <label class="form-label"><i class="bi bi-calendar me-1"></i> 日期范围</label>
+                        <select class="form-select" name="date_range">
+                            <option value="">全部时间</option>
+                            <option value="today" {% if date_range == 'today' %}selected{% endif %}>今天</option>
+                            <option value="week" {% if date_range == 'week' %}selected{% endif %}>最近一周</option>
+                            <option value="month" {% if date_range == 'month' %}selected{% endif %}>最近一个月</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-md-3 text-end">
+                    <button type="submit" class="btn btn-primary me-2">
+                        <i class="bi bi-funnel me-1"></i> 筛选
+                    </button>
+                    <a href="{% url 'diagnosis:diagnosis_history' %}" class="btn btn-secondary">
+                        <i class="bi bi-arrow-counterclockwise me-1"></i> 重置
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <!-- 诊断统计信息 -->
+    <div class="row mb-4 justify-content-center">
+        <div class="col-md-2 mx-2">
+            <div class="card stat-card total">
+                <div class="card-body py-1 text-center">
+                    <h5 class="mb-0">{{ total_count }}</h5>
+                    <div class="text-muted small">总记录</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-2 mx-2">
+            <div class="card stat-card normal">
+                <div class="card-body py-1 text-center">
+                    <h5 class="mb-0">{{ normal_count }}</h5>
+                    <div class="small">无肺炎</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-2 mx-2">
+            <div class="card stat-card mild">
+                <div class="card-body py-1 text-center">
+                    <h5 class="mb-0">{{ mild_count }}</h5>
+                    <div class="small">轻度</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-2 mx-2">
+            <div class="card stat-card severe">
+                <div class="card-body py-1 text-center">
+                    <h5 class="mb-0">{{ severe_count }}</h5>
+                    <div class="small">重度</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 诊断记录列表 -->
+    <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <div>
+                <i class="bi bi-table me-2"></i> 诊断记录列表
+            </div>
+            <span class="badge bg-primary">共 {{ diagnosis_results.count }} 条记录</span>
+        </div>
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>患者ID</th>
+                        <th>患者信息</th>
+                        <th>诊断结果</th>
+                        <th>诊断时间</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for diagnosis in diagnosis_results %}
+                    <tr>
+                        <td>{{ diagnosis.patient.patient_id }}</td>
+                        <td>
+                            <div class="d-flex align-items-center">
+                                <div class="avatar bg-light rounded-circle d-flex justify-content-center align-items-center me-2" style="width: 40px; height: 40px;">
+                                    <i class="bi bi-person text-primary"></i>
+                                </div>
+                                <div>
+                                    <div class="fw-semibold">{{ diagnosis.patient.name }}</div>
+                                    <div class="small text-muted">
+                                        {{ diagnosis.patient.get_gender_display }}, {% if diagnosis.patient.clinical_features %}{{ diagnosis.patient.clinical_features.age }}{% else %}{{ diagnosis.patient.get_age }}{% endif %}岁
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            {% if diagnosis.result_type == 'Normal' %}
+                            <div class="badge bg-success">无肺炎</div>
+                            <div class="small text-muted mt-1">置信度: {{ diagnosis.get_confidence_percentage }}</div>
+                            {% elif diagnosis.result_type == 'Mild' %}
+                            <div class="badge bg-warning">轻度肺炎</div>
+                            <div class="small text-muted mt-1">置信度: {{ diagnosis.get_confidence_percentage }}</div>
+                            {% elif diagnosis.result_type == 'Severe' %}
+                            <div class="badge bg-danger">重度肺炎</div>
+                            <div class="small text-muted mt-1">置信度: {{ diagnosis.get_confidence_percentage }}</div>
+                            {% else %}
+                            <div class="badge bg-secondary">未知</div>
+                            <div class="small text-muted mt-1">置信度: {{ diagnosis.get_confidence_percentage }}</div>
+                            {% endif %}
+                        </td>
+                        <td>{{ diagnosis.created_at|date:"Y-m-d H:i" }}</td>
+                        <td>
+                            <div class="btn-group" role="group">
+                                <a href="{% url 'diagnosis:diagnosis_result' diagnosis.id %}" class="btn btn-sm btn-outline-primary">
+                                    <i class="bi bi-eye"></i> 查看
+                                </a>
+                                <button type="button" class="btn btn-sm btn-outline-secondary print-result" data-id="{{ diagnosis.id }}">
+                                    <i class="bi bi-printer"></i> 打印
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5" class="text-center py-4">
+                            <div class="text-muted">
+                                <i class="bi bi-info-circle me-2"></i> 暂无诊断记录
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        
+        <!-- 分页 -->
+        {% if diagnosis_results.has_other_pages %}
+        <div class="card-footer">
+            <nav aria-label="Page navigation">
+                <ul class="pagination justify-content-center mb-0">
+                    {% if diagnosis_results.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page=1" aria-label="First">
+                            <span aria-hidden="true">上一页</span>
+                        </a>
+                    </li>
+                    {% else %}
+                    <li class="page-item disabled">
+                        <span class="page-link">上一页</span>
+                    </li>
+                    {% endif %}
+                    
+                    {% for i in diagnosis_results.paginator.page_range %}
+                        {% if diagnosis_results.number == i %}
+                        <li class="page-item active">
+                            <span class="page-link">{{ i }}</span>
+                        </li>
+                        {% else %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ i }}">{{ i }}</a>
+                        </li>
+                        {% endif %}
+                    {% endfor %}
+                    
+                    {% if diagnosis_results.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ diagnosis_results.next_page_number }}" aria-label="Next">
+                            <span aria-hidden="true">下一页</span>
+                        </a>
+                    </li>
+                    {% else %}
+                    <li class="page-item disabled">
+                        <span class="page-link">下一页</span>
+                    </li>
+                    {% endif %}
+                </ul>
+            </nav>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block page_scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // 打印按钮功能
+        document.querySelectorAll('.print-result').forEach(function(button) {
+            button.addEventListener('click', function() {
+                const diagnosisId = this.getAttribute('data-id');
+                const printWindow = window.open(`/diagnosis/result/${diagnosisId}/`, '_blank');
+                printWindow.addEventListener('load', function() {
+                    setTimeout(function() {
+                        printWindow.print();
+                    }, 500);
+                });
+            });
+        });
+    });
+</script>
+{% endblock %} 

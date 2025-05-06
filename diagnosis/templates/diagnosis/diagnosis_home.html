@@ -1,0 +1,283 @@
+{% extends 'index.html' %}
+{% load static %}
+{% load custom_filters %}
+
+{% block title %}肺炎诊断 - AIRAD肺炎诊断系统{% endblock %}
+
+{% block breadcrumb %}
+<li class="breadcrumb-item active" aria-current="page">肺炎诊断</li>
+{% endblock %}
+
+{% block page_css %}
+<link href="{% static 'css/diagnosis_home.css' %}" rel="stylesheet">
+<style>
+    /* 患者卡片悬浮动画效果 - 减少幅度 */
+    .patient-card {
+        transition: all 0.3s cubic-bezier(0.165, 0.84, 0.44, 1) !important;
+        box-shadow: 0 4px 12px -6px rgba(0, 0, 0, 0.08), 0 6px 16px 0 rgba(0, 0, 0, 0.05) !important;
+        transform-origin: center bottom;
+    }
+    
+    .patient-card:hover {
+        transform: translateY(-5px) scale(1.01) !important;
+        box-shadow: 0 8px 20px -8px rgba(0, 0, 0, 0.1), 0 8px 16px 0 rgba(0, 0, 0, 0.08) !important;
+        z-index: 2;
+    }
+    
+    .patient-card:hover .card-title {
+        color: var(--el-color-primary);
+    }
+    
+    .patient-card:hover .card-info {
+        border-color: rgba(43, 93, 224, 0.3);
+        background-color: rgba(245, 247, 250, 0.9);
+    }
+    
+    .patient-card:hover .btn-primary {
+        background: linear-gradient(135deg, #3468EA, #5A96FF);
+        box-shadow: 0 4px 12px rgba(43, 93, 224, 0.3);
+        transform: translateY(-2px);
+    }
+    
+    /* 添加点击波纹效果 */
+    .btn-primary {
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .btn-primary:after {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 5px;
+        height: 5px;
+        background: rgba(255, 255, 255, 0.6);
+        opacity: 0;
+        border-radius: 100%;
+        transform: scale(1, 1) translate(-50%);
+        transform-origin: 50% 50%;
+    }
+    
+    .btn-primary:active:after {
+        animation: ripple 0.6s ease-out;
+    }
+    
+    @keyframes ripple {
+        0% {
+            transform: scale(0, 0);
+            opacity: 0.6;
+        }
+        100% {
+            transform: scale(30, 30);
+            opacity: 0;
+        }
+    }
+    
+    /* 添加卡片内容弹出动画 - 减少幅度 */
+    .patient-card:hover .card-title i {
+        transform: rotate(5deg) scale(1.1);
+        transition: transform 0.3s ease;
+    }
+    
+    .card-title i {
+        transition: transform 0.3s ease;
+    }
+    
+    /* 标签动画效果 */
+    .badge {
+        transition: all 0.3s ease;
+    }
+    
+    .patient-card:hover .badge.bg-light {
+        background-color: rgba(43, 93, 224, 0.1) !important;
+        color: var(--el-color-primary) !important;
+        transform: translateY(-1px);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid position-relative">
+    <!-- 背景装饰 -->
+    <div class="position-absolute" style="top: -50px; right: 50px; width: 200px; height: 200px; border-radius: 50%; background: radial-gradient(circle, rgba(43, 93, 224, 0.05) 0%, rgba(43, 93, 224, 0) 70%); z-index: -1;"></div>
+    <div class="position-absolute" style="bottom: 100px; left: -50px; width: 250px; height: 250px; border-radius: 50%; background: radial-gradient(circle, rgba(103, 194, 58, 0.05) 0%, rgba(103, 194, 58, 0) 70%); z-index: -1;"></div>
+    
+    <!-- 页面标题 -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div class="page-title-wrapper">
+            <h2 class="page-title mb-0 position-relative">
+                <i class="bi bi-clipboard2-pulse me-2"></i> 肺炎诊断
+                <span class="position-absolute" style="bottom: -8px; left: 32px; height: 3px; width: 40px; background: linear-gradient(to right, var(--el-color-primary), transparent);"></span>
+            </h2>
+            <p class="text-muted mt-2 mb-0">通过AI分析CT图像和临床特征，辅助进行肺炎诊断</p>
+        </div>
+        <div>
+            <!-- 移除了诊断历史按钮 -->
+        </div>
+    </div>
+    
+    <!-- 诊断说明 -->
+    <div class="card mb-4" style="border-radius: 15px;box-shadow: 1px 2px 4px #e7e6e6;">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <span><i class="bi bi-info-circle me-2"></i> 功能说明</span>
+        </div>
+        <div class="card-body">
+            <p>肺炎诊断系统通过分析患者的CT图像数据，结合临床特征，辅助医生进行肺炎的识别、分类与严重程度评估。诊断结果分为三类：无肺炎、轻度肺炎和重度肺炎。</p>
+            
+            <div class="row mt-4" >
+                <div class="col-md-4">
+                    <div class="d-flex">
+                        <div class="me-3">
+                            <i class="bi bi-person-badge" style="font-size: 24px;"></i>
+                        </div>
+                        <div>
+                            <h5>选择患者</h5>
+                            <p class="mb-0">从患者列表中选择要诊断的患者</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-4">
+                    <div class="d-flex">
+                        <div class="me-3">
+                            <i class="bi bi-cloud-upload" style="font-size: 24px;"></i>
+                        </div>
+                        <div>
+                            <h5>上传CT图像</h5>
+                            <p class="mb-0">上传患者的CT图像，配合临床特征</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-4">
+                    <div class="d-flex">
+                        <div class="me-3">
+                            <i class="bi bi-clipboard-data" style="font-size: 24px;"></i>
+                        </div>
+                        <div>
+                            <h5>获取诊断结果</h5>
+                            <p class="mb-0">系统分析后得出肺炎诊断结果</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 搜索区域 -->
+    <div class="card mb-4">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <span><i class="bi bi-search me-2"></i> 搜索患者</span>
+        </div>
+        <div class="card-body"  style="border-radius: 10px;box-shadow: 0 2px 4px #e2e1e1;">
+            <form method="get" class="row g-3">
+                <div class="col-md-3">
+                    <label for="search_id" class="form-label">患者ID</label>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="bi bi-hash"></i></span>
+                        <input type="text" class="form-control" id="search_id" name="search_id" placeholder="输入患者ID" value="{{ search_id|default:'' }}">
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <label for="search_name" class="form-label">姓名</label>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="bi bi-person"></i></span>
+                        <input type="text" class="form-control" id="search_name" name="search_name" placeholder="输入患者姓名" value="{{ search_name|default:'' }}">
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <label for="search_date" class="form-label">创建日期</label>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="bi bi-calendar"></i></span>
+                        <input type="date" class="form-control" id="search_date" name="search_date" value="{{ search_date|default:'' }}">
+                    </div>
+                </div>
+                <div class="col-md-3 d-flex align-items-end">
+                    <div class="d-grid gap-2 w-100">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-search me-1"></i> 搜索
+                        </button>
+                        <button type="reset" class="btn btn-secondary">
+                            <i class="bi bi-arrow-counterclockwise me-1"></i> 重置
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <!-- 患者列表卡片 -->
+    <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <span><i class="bi bi-people me-2"></i> 选择患者</span>
+            <span class="badge bg-primary text-white">共 {{ patients|length }} 位患者</span>
+        </div>
+        <div class="card-body">
+            <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+                {% if patients %}
+                    {% for patient in patients %}
+                    <div class="col">
+                        <div class="card h-100 patient-card">
+                            <div class="card-body" style="border-radius: 10px;box-shadow: -1px 2px 4px #e7e6e6;">
+                                <div class="d-flex justify-content-between align-items-start mb-3">
+                                    <h5 class="card-title">
+                                        <i class="bi bi-person-circle me-2"></i>
+                                        {{ patient.name }} 
+                                        <small class="text-muted">({% if patient.clinical_features %}{{ patient.clinical_features.age }}{% else %}{{ patient.get_age }}{% endif %}岁)</small>
+                                    </h5>
+                                    <span class="badge bg-light text-dark">ID: {{ patient.patient_id }}</span>
+                                </div>
+                                
+                                <div class="card-info">
+                                    <p>
+                                        <strong><i class="bi bi-gender-ambiguous me-1"></i> 性别:</strong> 
+                                        {{ patient.get_gender_display }}
+                                    </p>
+                                    <p>
+                                        <strong><i class="bi bi-thermometer-half me-1"></i> 体温:</strong> 
+                                        {% if patient.clinical_features %}
+                                        {% with cf=patient.clinical_features %}
+                                            <span class="text-{{ cf.body_temperature|temp_status|cut:'status-' }}">{{ cf.body_temperature }}°C</span>
+                                        {% endwith %}
+                                        {% else %}
+                                            <span class="text-muted">未记录</span>
+                                        {% endif %}
+                                    </p>
+                                    <p>
+                                        <strong><i class="bi bi-bandaid me-1"></i> 基础疾病:</strong> 
+                                        {% if patient.clinical_features.underlying_diseases %}
+                                            {{ patient.clinical_features.underlying_diseases }}
+                                        {% else %}
+                                            <span class="text-muted">无</span>
+                                        {% endif %}
+                                    </p>
+                                    <p>
+                                        <strong><i class="bi bi-telephone me-1"></i> 联系方式:</strong> 
+                                        {% if patient.phone %}
+                                            {{ patient.phone }}
+                                        {% else %}
+                                            <span class="text-muted">未填写</span>
+                                        {% endif %}
+                                    </p>
+                                </div>
+                                
+                                <a href="{% url 'diagnosis:upload_ct' patient_id=patient.patient_id %}" class="btn btn-primary w-100">
+                                    <i class="bi bi-clipboard-pulse me-1"></i> 开始诊断
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="col-12">
+                        <div class="alert" style="background-color: var(--el-color-info-light); color: var(--el-color-info); border-radius: var(--el-border-radius-base); padding: 15px; border: 1px solid var(--el-color-info-lighter);">
+                            <i class="bi bi-info-circle me-2"></i> 没有找到符合条件的患者
+                        </div>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 
